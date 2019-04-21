@@ -54,7 +54,7 @@ main( int argc, char **argv )
     /* Print flow output column labels */
     node0_printf("#LABEL time Et Es charge\n");
     fflush(stdout);
-
+    
     /* Calculate and print initial flow output */
     fmunu_fmunu(&Et, &Es, &charge);
     node0_printf("WFLOW %g %g %g %g\n", 0.0, Et, Es, charge);

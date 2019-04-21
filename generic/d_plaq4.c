@@ -10,7 +10,9 @@
 
 #include "generic_includes.h"
 
-void d_plaquette(double *ss_plaq,double *st_plaq) {
+void d_plaquette(double *ss_plaq,double *st_plaq)
+{
+  //  printf("Amit generic/d_plaq4.c  start of function \n");
 /* su3mat is scratch space of size su3_matrix */
 su3_matrix *su3mat;
 register int i,dir1,dir2;
@@ -90,5 +92,7 @@ msg_tag *mtag0,*mtag1;
     *st_plaq = st_sum /((double)(3.0*nx*ny*nz*nt));
 
     free(su3mat);
+    //printf("Amit generic/d_plaq4.c Plaquette:(%e,%e) \n",*ss_plaq,*st_plaq);
+    //printf("Amit generic/d_plaq4.c  end of function \n");
 } /* d_plaquette4 */
 

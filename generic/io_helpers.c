@@ -18,7 +18,8 @@
     SAVE_ASCII, SAVE_SERIAL, SAVE_PARALLEL, SAVE_CHECKPOINT
 */
 gauge_file *save_lattice( int flag, char *filename, char *stringLFN){
-    double dtime;
+  printf("Amit generic/io_helpers.c  start of function gauge_file *save_lattice( int flag, char *filename, char *stringLFN) \n");
+  double dtime;
     gauge_file *gf = NULL;
 
 #ifndef NO_GAUGE_FIELD
@@ -122,15 +123,16 @@ gauge_file *save_lattice( int flag, char *filename, char *stringLFN){
     if(flag != FORGET)
       node0_printf("Time to save = %e\n",dtime);
 #if (PRECISION==1)
-    node0_printf("CHECK PLAQ: %e %e\n",g_ssplaq,g_stplaq);
-    node0_printf("CHECK NERSC LINKTR: %e CKSUM: %x\n",
+    node0_printf("Amit generic/io_helpers save_lattice() function called: CHECK PLAQ: %e %e\n",g_ssplaq,g_stplaq);
+    node0_printf("Amit generic/io_helpers save_lattice() function called: CHECK NERSC LINKTR: %e CKSUM: %x\n",
 		 linktrsum.real/3.,nersc_checksum);
 #else
     /* Double precision */
-    node0_printf("CHECK PLAQ: %.16e %.16e\n",g_ssplaq,g_stplaq);
-    node0_printf("CHECK NERSC LINKTR: %.16e CKSUM: %x\n",
+    node0_printf("Amit generic/io_helpers save_lattice() function called: CHECK PLAQ: %.16e %.16e\n",g_ssplaq,g_stplaq);
+    node0_printf("Amit generic/io_helpers save_lattice() function called: CHECK NERSC LINKTR: %.16e CKSUM: %x\n",
 		 linktrsum.real/3.,nersc_checksum);
 #endif
+    printf("Amit generic/io_helpers.c  start of function gauge_file *save_lattice( int flag, char *filename, char *stringLFN) \n");
     return gf;
 }
 
@@ -140,7 +142,6 @@ gauge_file *save_lattice( int flag, char *filename, char *stringLFN){
     RELOAD_ASCII, RELOAD_SERIAL, RELOAD_PARALLEL
 */
 void coldlat(void);
-void warmlat(void);
 
 gauge_file *reload_lattice( int flag, char *filename){
     double dtime;
@@ -160,10 +161,6 @@ gauge_file *reload_lattice( int flag, char *filename){
 	    coldlat();
             gf = NULL;
 	    break;
-	case WARM:	/* warm lattice */
-	    warmlat();
-            gf = NULL;
-	    break;
 	case RELOAD_ASCII:	/* read Ascii lattice */
 	    gf = restore_ascii(filename);
 	    break;
@@ -178,7 +175,7 @@ gauge_file *reload_lattice( int flag, char *filename){
 	    terminate(1);
     }
     dtime += dclock();
-    if(flag != FRESH && flag != WARM && flag != CONTINUE)
+    if(flag != FRESH && flag != CONTINUE)
       node0_printf("Time to reload gauge configuration = %e\n",dtime);
 #ifdef SCHROED_FUN
     set_boundary_fields();
@@ -190,14 +187,14 @@ gauge_file *reload_lattice( int flag, char *filename){
 #endif
     if(this_node==0){
 #if (PRECISION==1)
-    node0_printf("CHECK PLAQ: %e %e\n",g_ssplaq,g_stplaq);
-    node0_printf("CHECK NERSC LINKTR: %e CKSUM: %x\n",
+    node0_printf("Amit generic/io_helpers reload_lattice() function called: CHECK PLAQ: %e %e\n",g_ssplaq,g_stplaq);
+    node0_printf("Amit generic/io_helpers reload_lattice() function called: CHECK NERSC LINKTR: %e CKSUM: %x\n",
 		 linktrsum.real/3.,nersc_checksum);
     fflush(stdout);
 #else
     /* Double precision */
-    node0_printf("CHECK PLAQ: %.16e %.16e\n",g_ssplaq,g_stplaq);
-    node0_printf("CHECK NERSC LINKTR: %.16e CKSUM: %x\n",
+    node0_printf("Amit generic/io_helpers reload_lattice() function called: CHECK PLAQ: %.16e %.16e\n",g_ssplaq,g_stplaq);
+    node0_printf("Amit generic/io_helpers reload_lattice() function called: CHECK NERSC LINKTR: %.16e CKSUM: %x\n",
 		 linktrsum.real/3.,nersc_checksum);
     fflush(stdout);
 #endif
@@ -305,12 +302,8 @@ int ask_starting_lattice( FILE *fp, int prompt, int *flag, char *filename ){
   if (savebuf == NULL)return 1;
   
   printf("%s ",savebuf);
-  if(strcmp("fresh",savebuf) == 0 ) {
+  if(strcmp("fresh",savebuf) == 0 ){
     *flag = FRESH;
-    printf("\n");
-  }
-  else if(strcmp("warm",savebuf) == 0 ) {
-    *flag = WARM;
     printf("\n");
   }
   else if(strcmp("continue",savebuf) == 0 ) {
@@ -332,7 +325,7 @@ int ask_starting_lattice( FILE *fp, int prompt, int *flag, char *filename ){
   }
   
   /*read name of file and load it */
-  if( *flag != FRESH && *flag != WARM && *flag != CONTINUE ){
+  if( *flag != FRESH && *flag != CONTINUE ){
     if(prompt==1)printf("enter name of file containing lattice\n");
     status=fscanf(fp," %s",filename);
     if(status !=1) {
@@ -547,32 +540,7 @@ void coldlat(void){
 	}
     }
 
-    node0_printf("unit gauge configuration loaded\n");
-}
-
-void warmlat(void)
-{
-  int i,j,k,dir;
-  site *sit;
-
-  FORALLSITES(i,sit) {
-    for(dir=XUP;dir<=TUP;dir++) {
-      for(j=0; j<3; j++)  {
-	for(k=0; k<3; k++)  {
-	  Real x = 0.7*gaussian_rand_no(&(sit->site_prn));
-	  Real y = 0.7*gaussian_rand_no(&(sit->site_prn));
-	  if (j != k)  {
-	    sit->link[dir].e[j][k] = cmplx(x,y);
-	  }
-	  else  {
-	    sit->link[dir].e[j][k] = cmplx(1.0+x,y);
-	  }
-	}
-      }
-      reunit_su3((su3_matrix *)&(sit->link[dir]));
-    }
-  }
-  node0_printf("warm gauge configuration loaded\n");
+    node0_printf("Amit generic/io_helpers.c coldlat() function called: unit gauge configuration loaded\n");
 }
 
 void funnylat(void)  {

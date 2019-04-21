@@ -1,0 +1,18 @@
+#!/bin/bash
+
+Beta=(5p40 5p425 5p44 5p45 5p46   5p48)
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp
+a=$1
+
+echo "This is Beta = ("  ${Beta[$a]} 
+
+INPUT=${MyDIR}/Input/input${Beta[$a]}.txt
+SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
+echo "Input file used is at "  ${INPUT}
+echo "Screenoutput is at " ${SCREENOUTPUT}
+
+. /wsu/home/fy/fy41/fy4125/.bashrc
+cd ${MyDIR}
+
+mpirun -np 32 ./su3_rhmc_hisq  ${INPUT} ${SCREENOUTPUT}
+

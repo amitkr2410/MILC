@@ -1,0 +1,107 @@
+# Always 0 for redirected stdin
+    prompt 0
+
+# Lattice dimensions
+    nx 12
+    ny 12
+    nz 12
+    nt 6
+
+# Random number seed
+    iseed 86658
+
+# Number of pseudofermions --
+# must agree with the number in the rational function file
+    n_pseudo 4
+
+# specification of the rational function file
+# See below for instructions for generating it
+    load_rhmc_params test/rationals.sample.su3_rhmc_hisq
+
+# gauge coupling
+    beta 5.45
+
+# number of dynamical masses and the list of masses
+    n_dyn_masses 1
+
+# distinct masses of the dynamical quarks
+    dyn_mass 0.0125
+
+# degeneracies of flavors
+    dyn_flavors 2
+# tadpole factor
+    u0  0.890
+
+# The lines from here to the end can be repeated.
+# Here we show only one instance 
+
+# warmup sweeps (we usually set it to zero)
+    warms 0
+
+# trajectories
+    trajecs 1000
+
+# interval between measurements
+    traj_between_meas 1
+
+# molecular dynamics integration time step
+    microcanonical_time_step .01
+
+# number of steps
+    steps_per_trajectory 10
+
+# conjugate gradient (CG) tolerance for
+#  md = molecular dynamics evolution
+#  fa = fermion action calculation
+#  gr = pseudofermion Gaussian random source setup
+# precision is measured as |A x - b|/|b| where || is the L2 norm
+    cgresid_md_fa_gr .0005 .0001 .0001
+
+# The CG parameters are provided for each pseudofermion
+
+# maximum number of iterations for the CG in each instance
+    max_multicg_md_fa_gr  2500  2500  2500
+
+# precision of the CG solution for each instance
+    cgprec_md_fa_gr  2 2 2
+# residual error for the CG solution for each instance
+    cgresid_md_fa_gr .000005 1e-6 1e-6
+# maximum number of iterations for the CG in each instance
+    max_multicg_md_fa_gr  2500  2500  2500
+
+# precision of the CG solution for each instance
+# residual error for the CG solution for each instance
+# maximum number of iterations for the CG in each instance
+    cgprec_md_fa_gr  2 2 2
+    cgresid_md_fa_gr .000005 1e-6 1e-6
+    max_multicg_md_fa_gr  2500  2500  2500
+    cgprec_md_fa_gr  2 2 2
+    cgresid_md_fa_gr .000005 1e-6 1e-6
+    max_multicg_md_fa_gr  2500  2500  2500
+    cgprec_md_fa_gr  2 2 2
+
+# Precision of the fermion force calculation
+    prec_ff 1
+
+# CG tolerance, max iterations, for the chiral condensate
+# and related quantities
+    number_of_pbp_masses 2
+    max_cg_prop 500
+    max_cg_prop_restarts 5
+    npbp_reps 1
+    prec_pbp 1
+    mass 0.0018
+    naik_term_epsilon 0
+    error_for_propagator 1e-6
+    rel_error_for_propagator 0
+    mass 0.018
+    naik_term_epsilon 0
+    error_for_propagator 1e-6
+    rel_error_for_propagator 0
+
+# input lattice    
+    fresh
+
+# output lattice
+    forget
+ 

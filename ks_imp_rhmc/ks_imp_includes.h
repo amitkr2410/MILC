@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "defines.h"
 #include <string.h>
 #include "../include/complex.h"
 #include "../include/su3.h"
@@ -111,5 +112,8 @@ void gauge_field_copy(field_offset src,field_offset dest);
 double fermion_action( su3_vector **multi_x, su3_vector *sumvec );
 double hmom_action(void);
 
+
+/* fmunu.cc */
+void fmunu_fmunu(double *time, double *space, double *charge);
 #endif /* KS_IMP_INCLUDES_H_ */
 

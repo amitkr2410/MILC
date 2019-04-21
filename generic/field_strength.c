@@ -185,7 +185,7 @@ void make_field_strength(
     cleanup_gather(mtag0);
     /* Make traceless */
     FORALLSITES(i,s){
-      cc = trace_su3(&FIELD_STRENGTH(component));
+      cc = trace_su3(&FIELD_STRENGTH(component)); //printf("Amit generic/field_strength.c traceFS=(%e,%e) \n", cc.real,cc.imag);
       CMULREAL(cc,0.33333333333333333,cc);
       for(j=0;j<3;j++)
 	CSUB(FIELD_STRENGTH(component).e[j][j],cc,

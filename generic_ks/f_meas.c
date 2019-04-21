@@ -331,13 +331,17 @@ void f_meas_imp_field( int npbp_reps, quark_invert_control *qic, Real mass,
       r_psi_bar_psi_even =  pbp_e.real*(2.0/(double)volume) ;
       i_psi_bar_psi_even =  pbp_e.imag*(2.0/(double)volume) ;
       r_ferm_action =  rfaction*(1.0/(double)volume) ;
-      node0_printf("PBP: mass %e     %e  %e  %e  %e ( %d of %d )\n", mass,
+      //pbs as a global variable (Defined by Amit)
+      PBP = sqrt( pow(r_psi_bar_psi_odd + r_psi_bar_psi_even,2.0) + pow(i_psi_bar_psi_odd + i_psi_bar_psi_even,2.0) );
+      //Print complex number psi-bar-psi for even and odd sites 
+      node0_printf("PBP: mass %e     %e  %e  %e  %e, AvgPBP=%e, ( %d of %d )\n", mass,
 		   r_psi_bar_psi_even, r_psi_bar_psi_odd,
-		   i_psi_bar_psi_even, i_psi_bar_psi_odd,
+		   i_psi_bar_psi_even, i_psi_bar_psi_odd, PBP,
 		   jpbp_reps+1, npbp_reps);
       node0_printf("FACTION: mass = %e,  %e ( %d of %d )\n", mass,
 		   r_ferm_action, jpbp_reps+1, npbp_reps);
-
+     
+     
 #ifdef CHEM_POT
       /* Print results for pb_dMdmu_p and pb_d2Mdmu2_p */
       chem_pot_print1(pb_dMdmu_p_e, pb_dMdmu_p_o, pb_d2Mdmu2_p_e, pb_d2Mdmu2_p_o,

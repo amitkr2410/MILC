@@ -1,0 +1,10 @@
+Lattice Size: 4*12^3
+
+NumberOfProcessor		RunTime		Runtime
+1				317 sec		5 min 17 sec
+2				143 sec  	2 min 23 sec
+4				86  sec 	1 min 26 sec
+6				83  sec		1 min 23 sec
+8				88  sec		1 min 28 sec
+10
+12

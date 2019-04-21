@@ -161,6 +161,7 @@ static int n_gathers, gather_array_len;
 void
 initialize_machine(int *argc, char ***argv)
 {
+  printf("Amit generic/com_vanilla.c start of void initialize_machine(int *argc, char ***argv) \n");
   /* check if 32 bit int is set correctly */
 #ifdef SHORT_IS_32BIT
   if(sizeof(unsigned short)!=4) {
@@ -179,6 +180,7 @@ initialize_machine(int *argc, char ***argv)
   n_gathers = 0;
   gather_array_len = 0;
   gather_array = NULL;
+  printf("Amit generic/com_vanilla.c end of function void initialize_machine(int *argc, char ***argv) \n");
 }
 
 /*
@@ -187,9 +189,11 @@ initialize_machine(int *argc, char ***argv)
 void
 normal_exit(int status)
 {
+  printf("Amit generic/com_vanilla.c start of function void normal_exit(int status) \n");
   time_stamp("exit");
   fflush(stdout);
   exit(status);
+  printf("Amit generic/com_vanilla.c end of function void normal_exit(int status) \n");
 }
 
 /*
@@ -198,10 +202,12 @@ normal_exit(int status)
 void
 terminate(int status)
 {
+  printf("Amit generic/com_vanilla.c start of function void terminate(int status) \n");
   time_stamp("termination");
   printf("Termination: node %d, status = %d\n", this_node, status);
   fflush(stdout);
   exit(status);
+  printf("Amit generic/com_vanilla.c end of function void terminate(int status) \n");
 }
 
 /*

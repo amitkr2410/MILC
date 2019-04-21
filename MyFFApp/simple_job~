@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Beta=(5p40 5p425 5p44 5p45 5p46   5p48)
+
+a=$1
+
+echo "This is Beta = ("  ${Beta[$a]} 
+
+XML=/wsu/home/fy/fy41/fy4125/RUN/PP1/InputFile/jetscape_initBin${pTHat[$a]}_${pTHat[$b]}.xml
+echo "Input XML file used is "  ${XML}
+
+TestOut=/wsu/home/fy/fy41/fy4125/RUN/PP1/JETSCAPE-COMP/build/test_outBin${pTHat[$a]}_${pTHat[$b]}.out
+echo "OutFile file name used will be "  ${TestOut}
+
+SigmaHard=/wsu/home/fy/fy41/fy4125/RUN/PP1/OutPutFile/SigmaHardBin${pTHat[$a]}_${pTHat[$b]}.out
+echo "SigmaHard file name used will be " ${SigmaHard}
+
+HadronFile=/wsu/home/fy/fy41/fy4125/RUN/PP1/OutPutFile/JetscapeHadronListBin${pTHat[$a]}_${pTHat[$b]}.out
+PartonFile=/wsu/home/fy/fy41/fy4125/RUN/PP1/OutPutFile/JetscapePartonListBin${pTHat[$a]}_${pTHat[$b]}.out
+echo "HadronFile will be stored with name " ${HadronFile}
+
+. /wsu/home/fy/fy41/fy4125/.bashrc
+cd /wsu/home/fy/fy41/fy4125/RUN/PP1/JETSCAPE-COMP/build/
+
+#./hydroJetTest ${XML} ${TestOut} ${SigmaHard}  
+./PythiaBrickTest ${XML} ${TestOut} ${SigmaHard}
+#./FinalStateHadrons  ${TestOut} ${HadronFile}
+#./FinalStatePartons  ${TestOut} ${PartonFile}
