@@ -6,9 +6,9 @@
     iseed 86658
     n_pseudo 4
     load_rhmc_params test/rationals.sample.su3_rhmc_hisq
-    beta 6.0
+    beta 8.0
     n_dyn_masses 2
-    dyn_mass .00569 0.1138
+    dyn_mass .0007 0.014
     dyn_flavors 2 1
     u0  0.890
  

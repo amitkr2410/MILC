@@ -1,18 +1,24 @@
 #!/bin/bash
 
-Beta=(5p40 5p425 5p44 5p45 5p46   5p48)
+#File=(inputNt4_beta6p0.txt inputNt4_beta6p8.txt  inputNt4_beta8p0.txt)
+File=(inputNt6_beta6p0.txt inputNt4_beta6p8.txt  inputNt4_beta8p0.txt)
 MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp
 a=$1
 
-echo "This is Beta = ("  ${Beta[$a]} 
+echo "This is Beta = ("  ${File[$a]} 
 
-INPUT=${MyDIR}/Input/input${Beta[$a]}.txt
-SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
+INPUT=${MyDIR}/Run1Input/${File[$a]}
+#SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
 echo "Input file used is at "  ${INPUT}
-echo "Screenoutput is at " ${SCREENOUTPUT}
-
-. /wsu/home/fy/fy41/fy4125/.bashrc
+#echo "Screenoutput is at " ${SCREENOUTPUT}
+TimeOutput=${MyDIR}/OutPut/TimeFor${File[$a]}
+# . /wsu/home/fy/fy41/fy4125/.bashrc
 cd ${MyDIR}
 
-mpirun -np 32 ./su3_rhmc_hisq  ${INPUT} ${SCREENOUTPUT}
+echo "${INPUT}" >> ${TimeOutput}
+echo "mpirun -np 64 ./su3_rhmc_hisq  ${INPUT}" >> ${TimeOutput}
+echo $(date) >> ${TimeOutput}
 
+mpirun -np 64 ./su3_rhmc_hisq  ${INPUT} 
+
+echo $(date) >>  ${TimeOutput}

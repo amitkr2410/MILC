@@ -5,7 +5,7 @@
     nt 4
     iseed 86658
     n_pseudo 4
-    load_rhmc_params test/rationals.sample.su3_rhmc_hisq
+    load_rhmc_params     RationalFunctionTUMQCD/rat.m00569m1138
     beta 6.0
     n_dyn_masses 2
     dyn_mass .00569 0.1138
@@ -13,7 +13,7 @@
     u0  0.890
  
     warms 0
-    trajecs 1000
+    trajecs 2000
     traj_between_meas 1
     microcanonical_time_step .02
     steps_per_trajectory 10

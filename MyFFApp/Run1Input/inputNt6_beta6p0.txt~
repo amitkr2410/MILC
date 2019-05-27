@@ -1,8 +1,8 @@
     prompt 0
-    nx 16
-    ny 16
-    nz 16
-    nt 4
+    nx 24
+    ny 24
+    nz 24
+    nt 6
     iseed 86658
     n_pseudo 4
     load_rhmc_params test/rationals.sample.su3_rhmc_hisq
@@ -44,5 +44,4 @@
     error_for_propagator 1e-6
     rel_error_for_propagator 0
     fresh
-    forget
- 
+    save_serial Run1SaveLattice/HISQConfigurationNt6_beta6p0.test 

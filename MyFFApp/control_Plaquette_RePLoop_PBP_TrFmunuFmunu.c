@@ -35,21 +35,22 @@ int main( int argc, char **argv )
   double dtime, dclock();
 
   //Plaquette and Field-strength variable
-  int Nc=3;//Color factor
   double SS_Plaq=0.0, ST_Plaq=0.0;
   double Current_Plaq=0.0, Sum_Plaq=0.0, Average_Plaq=0.0;
-  double TadpoleFactor=0.0, TadpoleFactorNt=0.0; 
+  double SumPBP=0.0, AveragePBP=0.0;
   complex CurrentPolyakovLoop, SumPolyakovLoop, AveragePolyakovLoop;
-  double CurrentModPolyakovLoop=0.0, SumModPolyakovLoopTadpoleCorrected=0.0, AverageModPolyakovLoopTadpoleCorrected=0.0;
-  double CurrentBareFreeEnergy=0.0,  SumBareFreeEnergy=0.0, AverageBareFreeEnergy=0.0;
-  double CurrentBareFreeEnergyTadpoleCorrected=0.0,  SumBareFreeEnergyTadpoleCorrected=0.0, AverageBareFreeEnergyTadpoleCorrected=0.0;
-  
+  complex CurrentTraceF3iF3iMinusF4iF4i, CurrentTraceF4iF3iPlusF3iF4i;
+  complex SumTraceF3iF3iMinusF4iF4i, AverageTraceF3iF3iMinusF4iF4i;
+  complex SumTraceF4iF3iPlusF3iF4i, AverageTraceF4iF3iPlusF3iF4i;
   //Initialize variable to zero
   CurrentPolyakovLoop=cmplx(0.0,0.0); SumPolyakovLoop=cmplx(0.0,0.0); AveragePolyakovLoop=cmplx(0.0,0.0);
+  CurrentTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); CurrentTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
+  SumTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); AverageTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0);
+  SumTraceF4iF3iPlusF3iF4i  =cmplx(0.0,0.0); AverageTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
 
   //FileName to save observables
-  FILE *fploop;
-  char FileNamePloop[1000];
+  FILE *fplaquette, *ftracefmunu;
+  char FileNamePlaq[1000], FileNameFmunu[1000];
 
   // Initialization 
   initialize_machine(&argc,&argv);
@@ -66,12 +67,15 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"Output/DataPloopNt%d_Beta%.2f_ml%.4f_ms%.4f.txt", nt, beta, dyn_mass[0], dyn_mass[1]);
-      fploop = fopen(FileNamePloop,"w");
+      sprintf(FileNamePlaq,"OutPut/DataPlaquette%d.txt", (int)(beta*1000));
+      sprintf(FileNameFmunu,"OutPut/DataTraceFmunu%d.txt",(int)(beta*1000));
+      fplaquette = fopen(FileNamePlaq,"w");
+      ftracefmunu = fopen(FileNameFmunu,"w");
 
-      fprintf(fploop,"#Beta=%.4f, ml=%.6f, ms=%.6f,  Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], nt, nx);
-      fprintf(fploop,"#Iters \t Current_Plaq \t AvgPlaq \t TadpoleFactor \t TadpoleFactorNt \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t  CurrentModPolyakovLoop \t AverageModPolyakovLoopTadpoleCorrected \t  CurrentBareFreeEnergy \t AvgBareFreeEnergy  \t CurrentBareFreeEnergyTadpoleCorrected \t AvgBareFreeEnergyTadpoleCorrected \n");
-
+      fprintf(fplaquette,"#Beta=%e, Nt=%d, Ns=%d^3 \n", beta, nt, nx);
+      fprintf(fplaquette,"#Iters \t Current_Plaq \t Average_Plaq \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t AveragePolyakovLoop.real \t AveragePolyakovLoop.imag \t PBP \t AveragePBP\n");
+      fprintf(ftracefmunu,"#Beta=%e, Nt=%d, Ns=%d^3 \n", beta, nt, nx);
+      fprintf(ftracefmunu,"#Iter \t TraceF3iF3iMinusF4iF4i.real \t TraceF3iF3iMinusF4iF4i.imag \t AvgTraceF3iF3iMinusF4iF4i.real \t AvgTraceF3iF3iMinusF4iF4i.imag \t TraceF4iF3iPlusF3iF4i.real \t TraceF4iF3iPlusF3iF4i.imag \t AvgTraceF4iF3iPlusF3iF4i.real \t AvgTraceF4iF3iPlusF3iF4i.imag \n");
       /* perform warmup trajectories */
       #ifdef MILC_GLOBAL_DEBUG
       global_current_time_step = 0;
@@ -127,50 +131,42 @@ int main( int argc, char **argv )
 	      MeasurementCount = MeasurementCount + 1;
 	      if(iters ==200) 
 		{
-		  MeasurementCount = 1; 
-		  Sum_Plaq=0.0;
+		  MeasurementCount = 1; Sum_Plaq=0.0;
 		  SumPolyakovLoop = cmplx(0.0,0.0);
-		  SumModPolyakovLoopTadpoleCorrected=0.0;
-		  SumBareFreeEnergy=0.0;
-		  SumBareFreeEnergyTadpoleCorrected=0.0;
+		  SumTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  SumTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
+		  SumPBP = 0.0;
 		}
 	      /* call gauge_variable fermion_variable measuring routines */
 	      //rephase(OFF);	      
 	      /* Compute plaquette and display output */
 	      SS_Plaq=0.0; ST_Plaq=0.0;
 	      d_plaquette(&SS_Plaq, &ST_Plaq);
-	      Current_Plaq = ((SS_Plaq+ST_Plaq)/2.0)/Nc;
-	      Sum_Plaq= Sum_Plaq + Current_Plaq;
+	      Current_Plaq = ((SS_Plaq+ST_Plaq)/2.0);
+	      Sum_Plaq = Sum_Plaq + Current_Plaq;
 	      Average_Plaq = Sum_Plaq/MeasurementCount;
-	      TadpoleFactor = pow(Current_Plaq, 1.0/4.0);
-	      TadpoleFactorNt = pow(Current_Plaq, nt/4.0);
-	      printf("Amit MyFFApp/control.c Plaquette=(%e,%e), CurrentPlaq=%e, AvgPlaq=%e \n",SS_Plaq, ST_Plaq, Current_Plaq, Average_Plaq);
+	      printf("Amit MyFFApp/control.c Plaquette=(%e,%e), AveragePlaq=%e \n",SS_Plaq, ST_Plaq, Average_Plaq);
 
 	      /* Calculate trace of polyakov loop */
 	      CurrentPolyakovLoop=cmplx(0.0,0.0); 
 	      CurrentPolyakovLoop = ploop();
-
-	      CDIVREAL(CurrentPolyakovLoop,3.0,CurrentPolyakovLoop);								   
 	      CADD(SumPolyakovLoop, CurrentPolyakovLoop, SumPolyakovLoop);
 	      CDIVREAL(SumPolyakovLoop, MeasurementCount, AveragePolyakovLoop);
+	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag);
 
-	      complex *PointerPLoop = &CurrentPolyakovLoop;
-	      CurrentModPolyakovLoop=cabs(PointerPLoop);
-	      SumModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected + (CurrentModPolyakovLoop*TadpoleFactorNt);
-	      AverageModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected/MeasurementCount;
+	      /* Calculate trace of fmunu and output */
 	      
-	      CurrentBareFreeEnergy = -log(CurrentModPolyakovLoop);
-              SumBareFreeEnergy = SumBareFreeEnergy + CurrentBareFreeEnergy;
-              AverageBareFreeEnergy = SumBareFreeEnergy/MeasurementCount;
-
-	      CurrentBareFreeEnergyTadpoleCorrected = -log(TadpoleFactorNt*CurrentModPolyakovLoop);
-	      SumBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected + CurrentBareFreeEnergyTadpoleCorrected;
-	      AverageBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected/MeasurementCount;
-
-	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e), and (CurrentModPLOOP,AvgModPLOOPTadpoleCorr)=(%e,%e), and (CurrentBareFreeEnergy, AverageBareFreeEnergy)=(%e,%e), and (CurrenttBareFreeEnergyTadpoleCorr, AverageBareFreeEnergyTadpoleCorr)=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected, CurrentBareFreeEnergy, AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
-
-	      /* Calculate trace of fmunu and output */	      
-	      fprintf(fploop,"%d \t %e \t %.4f  \t %.4f \t %.4f \t %.4f \t %.4f \t %e \t %.4f \t %e  \t %.4f  \t %e \t %.4f \n", iters, Current_Plaq,  Average_Plaq, TadpoleFactor, TadpoleFactorNt, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected,   CurrentBareFreeEnergy,  AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
+	      CurrentTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  CurrentTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);  	      
+	      fmunu_fmunu(&CurrentTraceF3iF3iMinusF4iF4i, &CurrentTraceF4iF3iPlusF3iF4i);
+	      CADD(SumTraceF3iF3iMinusF4iF4i, CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i);
+	      CADD(SumTraceF4iF3iPlusF3iF4i, CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i);
+	      CDIVREAL(SumTraceF3iF3iMinusF4iF4i, MeasurementCount, AverageTraceF3iF3iMinusF4iF4i);
+	      CDIVREAL(SumTraceF4iF3iPlusF3iF4i, MeasurementCount, AverageTraceF4iF3iPlusF3iF4i);	      
+	      printf("Amit MyFFApp/control.c TraceF3iF3iMinusF4iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag);
+	      printf("Amit MyFFApp/control.c TraceF4iF3iPlusF3iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag); 
+	      //fflush(stdout);
+	      
+	      fprintf(fplaquette,"%d \t %e \t %e \t %e \t %e \t %e \t %e ", iters, Current_Plaq, Average_Plaq, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag);
+	      fprintf(ftracefmunu,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag, CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag );
 	      
 	 rephase(ON);
 	 /* Compute chiral condensate pbp, etc */
@@ -185,6 +181,11 @@ int main( int argc, char **argv )
              #endif
 	     f_meas_imp_field( par_buf.npbp_reps, &par_buf.qic_pbp[i], par_buf.ksp_pbp[i].mass, naik_index, fn_links);
 	   }
+	 SumPBP = SumPBP + PBP;
+	 AveragePBP = SumPBP/MeasurementCount;
+	 printf("Amit MyFFApp/control.c PBP=%e, AveragePBP=%e \n", PBP, AveragePBP);
+	 fprintf(fplaquette,"%e \t %e \n",PBP, AveragePBP);
+	 //fflush(stdout);
 	 
 	 if(traj_done < trajecs - 1)
 	   {
@@ -226,8 +227,8 @@ int main( int argc, char **argv )
       fn_links = NULL;
 	   }
   
-  fclose(fploop);
-  //  fclose(ftracefmunu);
+  fclose(fplaquette);
+  fclose(ftracefmunu);
   normal_exit(0);
   return 0;
 }

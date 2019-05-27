@@ -13,7 +13,7 @@
     u0  0.890
  
     warms 0
-    trajecs 1000
+    trajecs 5000
     traj_between_meas 1
     microcanonical_time_step .02
     steps_per_trajectory 10

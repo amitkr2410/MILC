@@ -3,19 +3,19 @@
 MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp
 cd ${MyDIR}
 
-for (( Trial=1; Trial<6; Trial++ )) #69
+for (( Trial=0; Trial<1; Trial++ )) #69
 do
     echo Submitting Job \# $Trial
 
-    #LogFile=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Trial}.out
-    ErrFile=/wsu/home/fy/fy41/fy4125/Log/Screen${Trial}.err
+    #LogFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNewOutput${Trial}.out
+    ErrFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNew${Trial}.err
     LogFile=/dev/null
     #ErrFile=/dev/null
     Exec=${MyDIR}/simple_job
 
     ##qsub -V -q wsuq accq mwsuq  -l mem=3gb -N DoQueue -o $LogFile -e $ErrFile -- $Exec $Args $Trial
     ## qsub -V -q eamxq -l mem=2gb   -N AmitQueue  -o $LogFile -e $ErrFile --  $Exec $Trial
-    qsub -V -q wsuq  -l mem=32gb -l ncpus=32 -l mpiprocs=32 -N HISQ$Trial   -o $LogFile -e $ErrFile --  $Exec $Trial
+    qsub -V -q wsuq  -l mem=128gb -l ncpus=64 -l mpiprocs=64 -N Nt6i$Trial   -o $LogFile -e $ErrFile --  $Exec $Trial
     
 done
 
