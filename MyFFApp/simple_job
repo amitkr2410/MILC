@@ -1,24 +1,30 @@
 #!/bin/bash
 
 #File=(inputNt4_beta6p0.txt inputNt4_beta6p8.txt  inputNt4_beta8p0.txt)
-File=(inputNt6_beta6p0.txt inputNt4_beta6p8.txt  inputNt4_beta8p0.txt)
-MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp
+#File=(inputNt6_beta6p0.txt inputNt4_beta6p8.txt  inputNt4_beta8p0.txt)
+
+#File=(inputNt4_Beta6.515ml0.00302_ms0.0604.txt     inputNt4_Beta6.8ml0.00224_ms0.0448.txt  inputNt4_Beta7.5ml0.00111_ms0.0222.txt   inputNt4_Beta8.0ml0.0007_ms0.014.txt)
+
+File=(inputNt6_Beta6.515ml0.00302_ms0.0604.txt     inputNt6_Beta6.8ml0.00224_ms0.0448.txt  inputNt6_Beta7.5ml0.00111_ms0.0222.txt   inputNt6_Beta8.0ml0.0007_ms0.014.txt)
+
+
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFApp
 a=$1
 
 echo "This is Beta = ("  ${File[$a]} 
 
-INPUT=${MyDIR}/Run1Input/${File[$a]}
+INPUT=${MyDIR}/Run4Input/${File[$a]}
 #SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
 echo "Input file used is at "  ${INPUT}
 #echo "Screenoutput is at " ${SCREENOUTPUT}
-TimeOutput=${MyDIR}/OutPut/TimeFor${File[$a]}
+TimeOutput=${MyDIR}/Output/TimeFor${File[$a]}
 # . /wsu/home/fy/fy41/fy4125/.bashrc
 cd ${MyDIR}
 
 echo "${INPUT}" >> ${TimeOutput}
-echo "mpirun -np 64 ./su3_rhmc_hisq  ${INPUT}" >> ${TimeOutput}
+echo "mpirun -np 32 ./su3_rhmc_hisq_tree-level  ${INPUT}" >> ${TimeOutput}
 echo $(date) >> ${TimeOutput}
 
-mpirun -np 64 ./su3_rhmc_hisq  ${INPUT} 
+mpirun -np 32 ./su3_rhmc_hisq_tree-level  ${INPUT} 
 
 echo $(date) >>  ${TimeOutput}

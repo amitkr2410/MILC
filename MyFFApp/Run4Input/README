@@ -1,0 +1,5 @@
+#Running
+
+Symanzik 1x1, 1x2 gauge action: generic/imp_actions/symanzik_tree_action.h
+Quark action:  generic_ks/imp_actions/hisq/hisq_action.h
+

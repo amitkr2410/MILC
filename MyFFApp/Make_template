@@ -220,8 +220,8 @@ su3_rhmc_hisq::
 	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@${BINEXT}" ${HISQ_OPTIONS} \
 	"DEFINES+= -DHMC"
 
-## Added by amit
-su3_rhmc_hisq_tree-level::
+## Added by Amit AMIT amit
+su3_rhmc_hisq_u3_tree-level::
 	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
         "DEFINES= -DFN  -DINT_ALG=INT_3G1F \
 	-DHISQ_REUNIT_ALLOW_SVD \
@@ -235,6 +235,15 @@ su3_rhmc_hisq_tree-level::
 	${GAUGE_FORCE} control.o" \
 	"DEFINES+= -DHMC"
 
+
+su3_rhmc_hisq_tree-level::
+	${MAKE} -f ${MAKEFILE} target "MYTARGET= $@" \
+	"DEFINES= -DFN  -DHMC -DINT_ALG=INT_3G1F" \
+        "GAUGE = symanzik_tree_action.h" \
+	"QUARK = hisq/hisq_action.h" \
+        "EXTRA_OBJECTS= ${HISQ_OBJECTS} ${HISQ_FORCE} \
+        ${GAUGE_FORCE} control.o"
+##Upto above line
 
 #######################################################################
 # Experimental targets

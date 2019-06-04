@@ -2,13 +2,10 @@
 /* MIMD version 7 */
 /* Main procedure for SU3 with dynamical staggered fermions        */
 /* general quark action, general gauge action */
-
 /* This file is for lattice generation with the RHMC algorithm */
-
 #define CONTROL
 #include "ks_imp_includes.h"	/* definitions files and prototypes */
 #include "lattice_qdp.h"
-
 
 #ifdef HAVE_QUDA
 #include <quda_milc_interface.h>
@@ -29,6 +26,9 @@ EXTERN gauge_header start_lat_hdr;	/* Input gauge field header */
 
 int main( int argc, char **argv )
 {
+  int ComputePLoopFreeEnergy=1;
+  int ComputeTraceFmunu =1;
+  int SaveLattice=0; int UseSavedConfiguration=1;
   int i,MeasurementCount,traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
@@ -43,13 +43,19 @@ int main( int argc, char **argv )
   double CurrentModPolyakovLoop=0.0, SumModPolyakovLoopTadpoleCorrected=0.0, AverageModPolyakovLoopTadpoleCorrected=0.0;
   double CurrentBareFreeEnergy=0.0,  SumBareFreeEnergy=0.0, AverageBareFreeEnergy=0.0;
   double CurrentBareFreeEnergyTadpoleCorrected=0.0,  SumBareFreeEnergyTadpoleCorrected=0.0, AverageBareFreeEnergyTadpoleCorrected=0.0;
+
+  complex CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i, AverageTraceF3iF3iMinusF4iF4i;
+  complex CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i, AverageTraceF4iF3iPlusF3iF4i;
   
   //Initialize variable to zero
   CurrentPolyakovLoop=cmplx(0.0,0.0); SumPolyakovLoop=cmplx(0.0,0.0); AveragePolyakovLoop=cmplx(0.0,0.0);
+  CurrentTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); CurrentTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
+  SumTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); AverageTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0);
+  SumTraceF4iF3iPlusF3iF4i  =cmplx(0.0,0.0); AverageTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
 
   //FileName to save observables
-  FILE *fploop;
-  char FileNamePloop[1000];
+  FILE *fploop, *ftracefmunu;
+  char FileNamePloop[10000], FileNameTraceFmunu[1000], SaveLatticeFileName[10000];
 
   // Initialization 
   initialize_machine(&argc,&argv);
@@ -66,12 +72,15 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"Output/DataPloopNt%d_Beta%.2f_ml%.4f_ms%.4f.txt", nt, beta, dyn_mass[0], dyn_mass[1]);
+      sprintf(FileNamePloop,"Output/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNameTraceFmunu,"Output/DataTraceFmunuNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
       fploop = fopen(FileNamePloop,"w");
+      ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
-      fprintf(fploop,"#Beta=%.4f, ml=%.6f, ms=%.6f,  Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], nt, nx);
+      fprintf(fploop,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
       fprintf(fploop,"#Iters \t Current_Plaq \t AvgPlaq \t TadpoleFactor \t TadpoleFactorNt \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t  CurrentModPolyakovLoop \t AverageModPolyakovLoopTadpoleCorrected \t  CurrentBareFreeEnergy \t AvgBareFreeEnergy  \t CurrentBareFreeEnergyTadpoleCorrected \t AvgBareFreeEnergyTadpoleCorrected \n");
-
+      fprintf(ftracefmunu,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
+      fprintf(ftracefmunu,"#Iters \t TraceF3iF3iMinusF4iF4i.real \t TraceF3iF3iMinusF4iF4i.imag \t AvgTraceF3iF3iMinusF4iF4i.real \t AvgTraceF3iF3iMinusF4iF4i.imag \t TraceF4iF3iPlusF3iF4i.real \t TraceF4iF3iPlusF3iF4i.imag \t AvgTraceF4iF3iPlusF3iF4i.real \t AvgTraceF4iF3iPlusF3iF4i.imag \n");
       /* perform warmup trajectories */
       #ifdef MILC_GLOBAL_DEBUG
       global_current_time_step = 0;
@@ -88,14 +97,11 @@ int main( int argc, char **argv )
 	  printf("Amit MyFFApp/control.c Plaquette = (%e,%e)\n",SS_Plaq, ST_Plaq);	  
 	  rephase(ON);
       	  update();	  
-        }
-      
+        }      
       node0_printf("default MyFFApp/control.c WARMUPS COMPLETED\n"); fflush(stdout);
       
       /* perform measuring trajectories, reunitarizing and measuring 	*/
-      MeasurementCount=0;		/* number of measurements 		*/
-      
-      
+      MeasurementCount=0;		/* number of measurements 		*/            
       for( traj_done=0; traj_done < trajecs; traj_done++ )
 	{ 
           #ifdef MILC_GLOBAL_DEBUG
@@ -117,105 +123,114 @@ int main( int argc, char **argv )
           #endif /* MILC_GLOBAL_DEBUG */
 	  
 	  /* do the Measurement and then the trajectories */
-
-	  rephase(OFF);
-          printf(" Amit MyFFApp/control.c s_iters=update() called at iters = %d \n", iters);
 	  /* measure every "propinterval" trajectories */
-	  //	 if( (traj_done%propinterval)==(propinterval-1) )
-	  //{
-	      iters = 1 + iters;
-	      MeasurementCount = MeasurementCount + 1;
-	      if(iters ==200) 
-		{
-		  MeasurementCount = 1; 
-		  Sum_Plaq=0.0;
-		  SumPolyakovLoop = cmplx(0.0,0.0);
-		  SumModPolyakovLoopTadpoleCorrected=0.0;
-		  SumBareFreeEnergy=0.0;
-		  SumBareFreeEnergyTadpoleCorrected=0.0;
-		}
-	      /* call gauge_variable fermion_variable measuring routines */
-	      //rephase(OFF);	      
-	      /* Compute plaquette and display output */
-	      SS_Plaq=0.0; ST_Plaq=0.0;
-	      d_plaquette(&SS_Plaq, &ST_Plaq);
-	      Current_Plaq = ((SS_Plaq+ST_Plaq)/2.0)/Nc;
-	      Sum_Plaq= Sum_Plaq + Current_Plaq;
-	      Average_Plaq = Sum_Plaq/MeasurementCount;
-	      TadpoleFactor = pow(Current_Plaq, 1.0/4.0);
-	      TadpoleFactorNt = pow(Current_Plaq, nt/4.0);
-	      printf("Amit MyFFApp/control.c Plaquette=(%e,%e), CurrentPlaq=%e, AvgPlaq=%e \n",SS_Plaq, ST_Plaq, Current_Plaq, Average_Plaq);
-
-	      /* Calculate trace of polyakov loop */
+	  iters = 1 + iters;
+	  MeasurementCount = MeasurementCount + 1;
+	  if(traj_done==0){rephase(OFF);}
+	  if(traj_done!=0 && UseSavedConfiguration==0){rephase(OFF);}
+	  if(iters ==200) 
+	    {
+	      MeasurementCount = 1; 
+	      Sum_Plaq=0.0;
+	      SumPolyakovLoop = cmplx(0.0,0.0);
+	      SumModPolyakovLoopTadpoleCorrected=0.0;
+	      SumBareFreeEnergy=0.0;
+	      SumBareFreeEnergyTadpoleCorrected=0.0;
+	      SumTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  SumTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
+	    }
+	  /* call gauge_variable  measuring routines */
+	  /* Compute plaquette, Polyakov loop, bare free energy and display/save in screen/file */
+	  SS_Plaq=0.0; ST_Plaq=0.0;
+	  d_plaquette(&SS_Plaq, &ST_Plaq);
+	  Current_Plaq = ((SS_Plaq+ST_Plaq)/2.0)/Nc;
+	  Sum_Plaq= Sum_Plaq + Current_Plaq;
+	  Average_Plaq = Sum_Plaq/MeasurementCount;
+	  TadpoleFactor = pow(Current_Plaq, 1.0/4.0);
+	  TadpoleFactorNt = pow(Current_Plaq, nt/4.0);
+	  printf("Amit MyFFApp/control.c beta=%.4f, u0=%.2f, Plaquette=(%e,%e), CurrentPlaq=%e, AvgPlaq=%e \n", beta, u0, SS_Plaq, ST_Plaq, Current_Plaq, Average_Plaq);
+	  
+	  /* Calculate trace of polyakov loop */
+	  if(ComputePLoopFreeEnergy==1)
+	    {
 	      CurrentPolyakovLoop=cmplx(0.0,0.0); 
 	      CurrentPolyakovLoop = ploop();
-
+	      
 	      CDIVREAL(CurrentPolyakovLoop,3.0,CurrentPolyakovLoop);								   
 	      CADD(SumPolyakovLoop, CurrentPolyakovLoop, SumPolyakovLoop);
 	      CDIVREAL(SumPolyakovLoop, MeasurementCount, AveragePolyakovLoop);
-
+	      
 	      complex *PointerPLoop = &CurrentPolyakovLoop;
 	      CurrentModPolyakovLoop=cabs(PointerPLoop);
 	      SumModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected + (CurrentModPolyakovLoop*TadpoleFactorNt);
 	      AverageModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected/MeasurementCount;
 	      
 	      CurrentBareFreeEnergy = -log(CurrentModPolyakovLoop);
-              SumBareFreeEnergy = SumBareFreeEnergy + CurrentBareFreeEnergy;
-              AverageBareFreeEnergy = SumBareFreeEnergy/MeasurementCount;
-
+	      SumBareFreeEnergy = SumBareFreeEnergy + CurrentBareFreeEnergy;
+	      AverageBareFreeEnergy = SumBareFreeEnergy/MeasurementCount;
+	      
 	      CurrentBareFreeEnergyTadpoleCorrected = -log(TadpoleFactorNt*CurrentModPolyakovLoop);
 	      SumBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected + CurrentBareFreeEnergyTadpoleCorrected;
 	      AverageBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected/MeasurementCount;
-
 	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e), and (CurrentModPLOOP,AvgModPLOOPTadpoleCorr)=(%e,%e), and (CurrentBareFreeEnergy, AverageBareFreeEnergy)=(%e,%e), and (CurrenttBareFreeEnergyTadpoleCorr, AverageBareFreeEnergyTadpoleCorr)=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected, CurrentBareFreeEnergy, AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
-
-	      /* Calculate trace of fmunu and output */	      
+	      /* write Plaquette, PLoop, Free Energy into a file */	      
 	      fprintf(fploop,"%d \t %e \t %.4f  \t %.4f \t %.4f \t %.4f \t %.4f \t %e \t %.4f \t %e  \t %.4f  \t %e \t %.4f \n", iters, Current_Plaq,  Average_Plaq, TadpoleFactor, TadpoleFactorNt, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected,   CurrentBareFreeEnergy,  AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
-	      
-	 rephase(ON);
-	 /* Compute chiral condensate pbp, etc */
-	 /* Make fermion links if not already done */
-	 restore_fermion_links_from_site(fn_links, par_buf.prec_pbp);
-	 for(i = 0; i < par_buf.num_pbp_masses; i++)
-	   {
-             #if ( FERM_ACTION == HISQ || FERM_ACTION == HYPISQ )
-	     naik_index = par_buf.ksp_pbp[i].naik_term_epsilon_index;
-             #else
-	     naik_index = 0;
-             #endif
-	     f_meas_imp_field( par_buf.npbp_reps, &par_buf.qic_pbp[i], par_buf.ksp_pbp[i].mass, naik_index, fn_links);
-	   }
-	 
-	 if(traj_done < trajecs - 1)
-	   {
-	     s_iters=update();
-	   }
-	}	   	/* end loop over trajectories */
-       
-      if(this_node==1)
-	{
-	     printf("\n\n default MyFFApp/control.c RUNNING COMPLETED, This node is %d\n\n",this_node); 
-	     fflush(stdout);	     
-	}
+	    } //end of ComputePLoopFreeEnergy if-condition
+	  
+	  if(ComputeTraceFmunu==1)
+	    {
+	      CurrentTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  CurrentTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
+              fmunu_fmunu(&CurrentTraceF3iF3iMinusF4iF4i, &CurrentTraceF4iF3iPlusF3iF4i);
+              CADD(SumTraceF3iF3iMinusF4iF4i, CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i);
+              CADD(SumTraceF4iF3iPlusF3iF4i, CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i);
+              CDIVREAL(SumTraceF3iF3iMinusF4iF4i, MeasurementCount, AverageTraceF3iF3iMinusF4iF4i);
+              CDIVREAL(SumTraceF4iF3iPlusF3iF4i, MeasurementCount, AverageTraceF4iF3iPlusF3iF4i);
+              printf("Amit MyFFApp/control.c TraceF3iF3iMinusF4iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag);
+              printf("Amit MyFFApp/control.c TraceF4iF3iPlusF3iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag);
+	      fprintf(ftracefmunu,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag, CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag );
+	    } /* end of if-condition for trace of fmunu correlators */
+	  
 
-      dtime += dclock();
-      if(this_node==1)
-	{
-	  printf("\n\n Default MyFFApp/control.c Time = %e seconds\n",dtime);
-	  printf("Default MyFFApp/control.c total_iters = %d \n\n",iters);
-	}
+	  if( SaveLattice==1  )
+	    {
+	      int flag=SAVE_SERIAL;
+	      sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+	      save_lattice( flag, SaveLatticeFileName, stringLFN );
+	      //rephase( OFF );
+	      // save_lattice( saveflag, savefile, stringLFN );
+	      //rephase( ON );
+	    }	      
+	  
+	  if(traj_done < trajecs - 1)
+	    {
+	      if(UseSavedConfiguration==0)
+		{ rephase(ON);
+		  printf(" Amit MyFFApp/control.c s_iters=update() called for beta= %.4f, u0=%.4f, at iters = %d \n",beta, u0, iters);
+		  s_iters=update();
+		}
+	      else 
+		{int flag=RELOAD_SERIAL;
+		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+		  reload_lattice( flag, SaveLatticeFileName);
+		}
+	    }
+	}/* end loop over trajectories */
+      
+
+      printf("default MyFFApp/control.c RUNNING COMPLETED, This node is %d \n",this_node); 
+      fflush(stdout);	     
+      dtime += dclock();	     
+      printf("Default MyFFApp/control.c Time = %e seconds \n",dtime);
+      printf("Default MyFFApp/control.c total_iters = %d \n",iters);      
       fflush(stdout);
       
       /* save lattice if requested */
       if( saveflag != FORGET )
-	{
-	  rephase( OFF );
+	{ rephase( OFF );
 	  save_lattice( saveflag, savefile, stringLFN );
 	  rephase( ON );
-	}
-      
-      /* Destroy fermion links (created in readin() */
-      
+	}      
+
+      /* Destroy fermion links (created in readin() */      
 #if FERM_ACTION == HISQ
       destroy_fermion_links_hisq(fn_links);
 #elif FERM_ACTION == HYPISQ
@@ -224,10 +239,10 @@ int main( int argc, char **argv )
       destroy_fermion_links(fn_links);
 #endif
       fn_links = NULL;
-	   }
+    }
   
   fclose(fploop);
-  //  fclose(ftracefmunu);
+  fclose(ftracefmunu);
   normal_exit(0);
   return 0;
 }
