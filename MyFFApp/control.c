@@ -28,7 +28,7 @@ int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
-  int SaveLattice=0; int UseSavedConfiguration=1;
+  int SaveLattice=1; int UseSavedConfiguration=0;
   int i,MeasurementCount,traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
@@ -40,7 +40,8 @@ int main( int argc, char **argv )
   double Current_Plaq=0.0, Sum_Plaq=0.0, Average_Plaq=0.0;
   double TadpoleFactor=0.0, TadpoleFactorNt=0.0; 
   complex CurrentPolyakovLoop, SumPolyakovLoop, AveragePolyakovLoop;
-  double CurrentModPolyakovLoop=0.0, SumModPolyakovLoopTadpoleCorrected=0.0, AverageModPolyakovLoopTadpoleCorrected=0.0;
+  double CurrentModPolyakovLoop=0.0, SumModPolyakovLoop=0.0, AverageModPolyakovLoop=0.0;
+  double SumModPolyakovLoopTadpoleCorrected=0.0, AverageModPolyakovLoopTadpoleCorrected=0.0;
   double CurrentBareFreeEnergy=0.0,  SumBareFreeEnergy=0.0, AverageBareFreeEnergy=0.0;
   double CurrentBareFreeEnergyTadpoleCorrected=0.0,  SumBareFreeEnergyTadpoleCorrected=0.0, AverageBareFreeEnergyTadpoleCorrected=0.0;
 
@@ -78,7 +79,7 @@ int main( int argc, char **argv )
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
       fprintf(fploop,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
-      fprintf(fploop,"#Iters \t Current_Plaq \t AvgPlaq \t TadpoleFactor \t TadpoleFactorNt \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t  CurrentModPolyakovLoop \t AverageModPolyakovLoopTadpoleCorrected \t  CurrentBareFreeEnergy \t AvgBareFreeEnergy  \t CurrentBareFreeEnergyTadpoleCorrected \t AvgBareFreeEnergyTadpoleCorrected \n");
+      fprintf(fploop,"#Iters \t Current_Plaq \t AvgPlaq \t TadpoleFactor \t TadpoleFactorNt \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t  CurrentModPolyakovLoop \t AverageModPolyakovLoop \t AverageModPolyakovLoopTadpoleCorrected \t  CurrentBareFreeEnergy \t AvgBareFreeEnergy  \t CurrentBareFreeEnergyTadpoleCorrected \t AvgBareFreeEnergyTadpoleCorrected \n");
       fprintf(ftracefmunu,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
       fprintf(ftracefmunu,"#Iters \t TraceF3iF3iMinusF4iF4i.real \t TraceF3iF3iMinusF4iF4i.imag \t AvgTraceF3iF3iMinusF4iF4i.real \t AvgTraceF3iF3iMinusF4iF4i.imag \t TraceF4iF3iPlusF3iF4i.real \t TraceF4iF3iPlusF3iF4i.imag \t AvgTraceF4iF3iPlusF3iF4i.real \t AvgTraceF4iF3iPlusF3iF4i.imag \n");
       /* perform warmup trajectories */
@@ -128,14 +129,13 @@ int main( int argc, char **argv )
 	  MeasurementCount = MeasurementCount + 1;
 	  if(traj_done==0){rephase(OFF);}
 	  if(traj_done!=0 && UseSavedConfiguration==0){rephase(OFF);}
-	  if(iters ==200) 
+	  if(iters ==500) 
 	    {
 	      MeasurementCount = 1; 
 	      Sum_Plaq=0.0;
 	      SumPolyakovLoop = cmplx(0.0,0.0);
-	      SumModPolyakovLoopTadpoleCorrected=0.0;
-	      SumBareFreeEnergy=0.0;
-	      SumBareFreeEnergyTadpoleCorrected=0.0;
+	      SumModPolyakovLoop=0.0; SumModPolyakovLoopTadpoleCorrected=0.0;
+	      SumBareFreeEnergy=0.0;  SumBareFreeEnergyTadpoleCorrected=0.0;
 	      SumTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  SumTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
 	    }
 	  /* call gauge_variable  measuring routines */
@@ -161,7 +161,9 @@ int main( int argc, char **argv )
 	      
 	      complex *PointerPLoop = &CurrentPolyakovLoop;
 	      CurrentModPolyakovLoop=cabs(PointerPLoop);
+	      SumModPolyakovLoop = SumModPolyakovLoop + CurrentModPolyakovLoop;
 	      SumModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected + (CurrentModPolyakovLoop*TadpoleFactorNt);
+	      AverageModPolyakovLoop = SumModPolyakovLoop/MeasurementCount;
 	      AverageModPolyakovLoopTadpoleCorrected = SumModPolyakovLoopTadpoleCorrected/MeasurementCount;
 	      
 	      CurrentBareFreeEnergy = -log(CurrentModPolyakovLoop);
@@ -171,9 +173,9 @@ int main( int argc, char **argv )
 	      CurrentBareFreeEnergyTadpoleCorrected = -log(TadpoleFactorNt*CurrentModPolyakovLoop);
 	      SumBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected + CurrentBareFreeEnergyTadpoleCorrected;
 	      AverageBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected/MeasurementCount;
-	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e), and (CurrentModPLOOP,AvgModPLOOPTadpoleCorr)=(%e,%e), and (CurrentBareFreeEnergy, AverageBareFreeEnergy)=(%e,%e), and (CurrenttBareFreeEnergyTadpoleCorr, AverageBareFreeEnergyTadpoleCorr)=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected, CurrentBareFreeEnergy, AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
+	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e), and (CurrentModPLOOP,AvgModPLOOP)=(%e,%e), and (CurrentBareFreeEnergy, AverageBareFreeEnergy)=(%e,%e), and (CurrenttBareFreeEnergyTadpoleCorr, AverageBareFreeEnergyTadpoleCorr)=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected, CurrentBareFreeEnergy, AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
 	      /* write Plaquette, PLoop, Free Energy into a file */	      
-	      fprintf(fploop,"%d \t %e \t %.4f  \t %.4f \t %.4f \t %.4f \t %.4f \t %e \t %.4f \t %e  \t %.4f  \t %e \t %.4f \n", iters, Current_Plaq,  Average_Plaq, TadpoleFactor, TadpoleFactorNt, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected,   CurrentBareFreeEnergy,  AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
+	      fprintf(fploop,"%d \t %e \t %.4f  \t %.4f \t %.4f \t %.4f \t %.4f \t %e \t %.4f \t %.4f \t %e  \t %.4f  \t %e \t %.4f \n", iters, Current_Plaq,  Average_Plaq, TadpoleFactor, TadpoleFactorNt, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoop, AverageModPolyakovLoop,   CurrentBareFreeEnergy,  AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
 	    } //end of ComputePLoopFreeEnergy if-condition
 	  
 	  if(ComputeTraceFmunu==1)
