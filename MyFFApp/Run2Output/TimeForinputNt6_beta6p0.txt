@@ -1,3 +1,0 @@
-/wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp/Run1Input/inputNt6_beta6p0.txt
-mpirun -np 64 ./su3_rhmc_hisq  /wsu/home/fy/fy41/fy4125/Lattice/milc/MyFFApp/Run1Input/inputNt6_beta6p0.txt
-Mon May 13 18:20:00 EDT 2019
