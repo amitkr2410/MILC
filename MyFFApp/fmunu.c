@@ -74,7 +74,8 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   /* Initialize sums */
   //double *time, *space, *charge;
   //*time = *space = *charge = 0;
-
+  *TraceF3iF3iMinusF4iF4i=cmplx(0.0,0.0);
+  *TraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
   /* Compute 8*F_mu,nu at each site */
   make_field_strength( F_OFFSET(link), F_OFFSET(fieldstrength) );
 
@@ -116,20 +117,21 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
     
   }
 
-  (*TraceF4iF3iPlusF3iF4i).real = ((*TraceF4iF3iPlusF3iF4i).real)*2.0;
-  (*TraceF4iF3iPlusF3iF4i).imag = ((*TraceF4iF3iPlusF3iF4i).imag)*2.0;
-    
+  g_complexsum(TraceF3iF3iMinusF4iF4i);    
+  g_complexsum(TraceF4iF3iPlusF3iF4i);
   /* Sum over all nodes */
   //g_doublesum(time);
   //g_doublesum(space);
   //g_doublesum(charge);
 
+  (*TraceF4iF3iPlusF3iF4i).real = ((*TraceF4iF3iPlusF3iF4i).real)*2.0;
+  (*TraceF4iF3iPlusF3iF4i).imag = ((*TraceF4iF3iPlusF3iF4i).imag)*2.0;
   /* Normalizations */
   
-  (*TraceF3iF3iMinusF4iF4i).real = ((*TraceF3iF3iMinusF4iF4i).real)/(volume);
-  (*TraceF3iF3iMinusF4iF4i).imag = ((*TraceF3iF3iMinusF4iF4i).imag)/(volume);
-  (*TraceF4iF3iPlusF3iF4i).real  = ((*TraceF4iF3iPlusF3iF4i).real)/(volume);
-  (*TraceF4iF3iPlusF3iF4i).imag  = ((*TraceF4iF3iPlusF3iF4i).imag)/(volume);
+  (*TraceF3iF3iMinusF4iF4i).real = -((*TraceF3iF3iMinusF4iF4i).real)/(volume);
+  (*TraceF3iF3iMinusF4iF4i).imag = -((*TraceF3iF3iMinusF4iF4i).imag)/(volume);
+  (*TraceF4iF3iPlusF3iF4i).real  = -((*TraceF4iF3iPlusF3iF4i).real)/(volume);
+  (*TraceF4iF3iPlusF3iF4i).imag  = -((*TraceF4iF3iPlusF3iF4i).imag)/(volume);
   
   printf("\n Total TraceF3iF3iMinusF4iF4i = "); Display(*TraceF3iF3iMinusF4iF4i);
   printf("\n Total TraceF4iF3iPlusF3iF4i = "); Display(*TraceF4iF3iPlusF3iF4i);
