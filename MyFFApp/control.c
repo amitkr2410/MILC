@@ -28,7 +28,7 @@ int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
-  int SaveLattice=1; int UseSavedConfiguration=0;
+  int SaveLattice=0; int UseSavedConfiguration=0;
   int i,MeasurementCount,traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
