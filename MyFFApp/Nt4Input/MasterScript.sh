@@ -1,14 +1,14 @@
 #!/bin/bash 
 
-MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFNt16
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFApp
 cd ${MyDIR}
 
-for (( Trial=9; Trial<11; Trial++ )) #69
+for (( Trial=0; Trial<2; Trial++ )) #69
 do
     echo Submitting Job \# $Trial
 
     #LogFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNewNt4Output${Trial}.out
-    ErrFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNt16New${Trial}.err
+    ErrFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNt4New${Trial}.err
     LogFile=/dev/null
     #ErrFile=/dev/null
     Exec=${MyDIR}/simple_job
@@ -16,14 +16,11 @@ do
     ##qsub -V -q wsuq accq mwsuq  -l mem=3gb -N DoQueue -o $LogFile -e $ErrFile -- $Exec $Args $Trial
    ##qsub -V -q eamxq -l mem=32gb -l ncpus=8 -l mpiprocs=8  -N Nt4i$Trial  -o $LogFile -e $ErrFile --  $Exec $Trial
 
-    ## wsu201-209 (40cpus each node, 1536 GBRAM)  cpu_model=E5-4627v4 -l cpu_type=Intel
-    ##  qsub -V -q wsuq -l cpu_type=Intel -l cpu_model=E5-4627v4 -l mem=64gb -l ncpus=32 -l mpiprocs=32 -N Nt16i$Trial -o $LogFile -e $ErrFile --        $Exec $Trial
+    ## wsu201-209 (40cpus each node, 1536 GBRAM)
+      qsub -V -q wsuq -l vnode=wsu207 -l cpu_type=Intel -l cpu_model=E5-4627v4 -l mem=32gb -l ncpus=8 -l mpiprocs=8 -N Nt4i$Trial -o $LogFile -e $ErrFile --        $Exec $Trial
 
    ## wsu161-wsu184 (28cpus each node, 128GB)
    ##   qsub -V -q mwsuq  -l cpu_type=Intel -l cpu_model=E5-2697v3 -l mem=16gb -l ncpus=8 -l mpiprocs=8 -N Nt4i$Trial -o $LogFile -e $ErrFile --        $Exec $Trial
-
-   #qsub -V -q wsuq  -l select=4:ncpus=8:mem=16gb:mpiprocs=8:cpu_type=Intel -N Nt16i$Trial -o $LogFile -e $ErrFile --  $Exec $Trial 
-   qsub -V   -l select=1:ncpus=16:mem=16gb:mpiprocs=16:cpu_type=Intel  -N Nt16i$Trial -o $LogFile -e $ErrFile --  $Exec $Trial
 done
 
 ##qsub -V -I -q eamxq -- /wsu/home/fy/fy41/fy4125/RUN/PP1/simple_job 0

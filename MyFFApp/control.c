@@ -28,8 +28,8 @@ int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
-  int SaveLattice=0; int UseSavedConfiguration=0;
-  int i,MeasurementCount,traj_done, naik_index;
+  int SaveLattice=0; int UseSavedConfiguration=1;
+  int i, MeasurementCount, traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
   double dtime, dclock();
@@ -92,13 +92,14 @@ int main( int argc, char **argv )
       printf(" Amit MyFFApp/control.c inside while(readin(prompt)==0) \n");
       for( traj_done=0; traj_done < warms; traj_done++ )
       	{
-	  rephase(OFF);
-	  SS_Plaq=0.0; ST_Plaq=0.0;
-	  d_plaquette(&SS_Plaq, &ST_Plaq);
-	  printf("Amit MyFFApp/control.c Plaquette = (%e,%e)\n",SS_Plaq, ST_Plaq);	  
-	  rephase(ON);
-      	  update();	  
-        }      
+	  //rephase(OFF);
+	  //SS_Plaq=0.0; ST_Plaq=0.0;
+	  //d_plaquette(&SS_Plaq, &ST_Plaq);
+	  //printf("Amit MyFFApp/control.c Plaquette = (%e,%e)\n",SS_Plaq, ST_Plaq);	  
+	  //rephase(ON);
+      	  //update();	  	  
+        } 
+      iters=warms;
       node0_printf("default MyFFApp/control.c WARMUPS COMPLETED\n"); fflush(stdout);
       
       /* perform measuring trajectories, reunitarizing and measuring 	*/
@@ -195,7 +196,7 @@ int main( int argc, char **argv )
 	  if( SaveLattice==1  )
 	    {
 	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+	      sprintf(SaveLatticeFileName,"/wsu/tmp/AmitLattice/Nt16Ns16/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -211,7 +212,7 @@ int main( int argc, char **argv )
 		}
 	      else 
 		{int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfiguration/Nt4_Ns16/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
 		  reload_lattice( flag, SaveLatticeFileName);
 		}
 	    }
