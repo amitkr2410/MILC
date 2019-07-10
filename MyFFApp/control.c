@@ -196,7 +196,7 @@ int main( int argc, char **argv )
 	  if( SaveLattice==1  )
 	    {
 	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"/wsu/tmp/AmitLattice/Nt16Ns16/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+	      sprintf(SaveLatticeFileName,"Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -212,7 +212,7 @@ int main( int argc, char **argv )
 		}
 	      else 
 		{int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfiguration/Nt4_Ns16/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/RCloneUpload/Nt4_Ns16Test1/Beta5.9000/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
 		  reload_lattice( flag, SaveLatticeFileName);
 		}
 	    }

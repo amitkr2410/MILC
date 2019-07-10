@@ -1,7 +1,0 @@
-#Beta=6.0000, ml=0.005690, ms=0.113800, u0=1.000, Nt=4, Ns=16^3 
-#Iters 	 Current_Plaq 	 AvgPlaq 	 TadpoleFactor 	 TadpoleFactorNt 	 CurrentPolyakovLoop.real 	 CurrentPolyakovLoop.imag 	  CurrentModPolyakovLoop 	 AverageModPolyakovLoopTadpoleCorrected 	  CurrentBareFreeEnergy 	 AvgBareFreeEnergy  	 CurrentBareFreeEnergyTadpoleCorrected 	 AvgBareFreeEnergyTadpoleCorrected 
-1 	 1.000000e+00 	 1.0000  	 1.0000 	 1.0000 	 1.0000 	 0.0000 	 1.000000e+00 	 1.0000 	 -0.000000e+00  	 0.0000  	 -0.000000e+00 	 0.0000 
-2 	 1.000000e+00 	 1.0000  	 1.0000 	 1.0000 	 1.0000 	 0.0000 	 1.000000e+00 	 1.0000 	 -0.000000e+00  	 0.0000  	 -0.000000e+00 	 0.0000 
-3 	 8.396097e-01 	 0.9465  	 0.9572 	 0.8396 	 0.8263 	 0.0000 	 8.262943e-01 	 0.8979 	 1.908042e-01  	 0.0636  	 3.656224e-01 	 0.1219 
-4 	 7.604118e-01 	 0.9000  	 0.9338 	 0.7604 	 0.7185 	 -0.0009 	 7.184807e-01 	 0.8100 	 3.306164e-01  	 0.1304  	 6.045115e-01 	 0.2425 
-5 	 7.120439e-01 	 0.8624  	 0.9186 	 0.7120 	 0.6408 	 -0.0005 	 6.408318e-01 	 0.7393 	 4.449883e-01  	 0.1933  	 7.846040e-01 	 0.3509 
