@@ -31,12 +31,14 @@ int main (int argc, char* argv[]) {
   double m4; // The mass for flavor 4
   int precision; // The precision that gmp uses
   double lambda_low, lambda_high; // The bounds of the approximation
-
+  
+  printf("Amit:main.c after definition of all variables \n");
+  
   // Set the exponent
   sscanf(argv[++i],"%d",&y1);
   sscanf(argv[++i],"%d",&z1);
   sscanf(argv[++i],"%le",&m1);
-  sscanf(argv[++i],"%d",&y2);
+  /*  sscanf(argv[++i],"%d",&y2);
   sscanf(argv[++i],"%d",&z2);
   sscanf(argv[++i],"%le",&m2);
   sscanf(argv[++i],"%d",&y3);
@@ -45,7 +47,7 @@ int main (int argc, char* argv[]) {
   sscanf(argv[++i],"%d",&y4);
   sscanf(argv[++i],"%d",&z4);
   sscanf(argv[++i],"%le",&m4);
-
+  */
   // Set the required degree of approximation
   sscanf(argv[++i],"%d",&n);
   sscanf(argv[++i],"%d",&d);
@@ -56,12 +58,16 @@ int main (int argc, char* argv[]) {
 
   // Set the precision of the arithmetic
   sscanf(argv[++i],"%d",&precision);
-
+  printf("(x1,z1,m1)=(%d, %d, %le) \n",y1,z1,m1);
+  printf("(x2,z2,m2)=(%d, %d, %le) \n",y2,z2,m2);
+  printf("(x3,z3,m3)=(%d, %d, %le) \n",y3,z3,m3);
+  printf("(x4,z4,m4)=(%d, %d, %le) \n",y4,z4,m4);
+  printf("(n,d)=(%d,%d) \t Lambda(Low,High)=(%le,%le) prec= ", n, d, lambda_low, lambda_high, precision );
   // The error from the approximation (the relative error is minimised
   // - if another error minimisation is requried, then line 398 in
   // alg_remez.C is where to change it)
   double error;
-
+  /*
   // The partial fraction expansion takes the form 
   // r(x) = norm + sum_{k=1}^{n} res[k] / (x + pole[k])
   double norm;
@@ -145,7 +151,7 @@ int main (int argc, char* argv[]) {
 
   delete res;
   delete pole;
-
+  */
   exit(0);
 
 }

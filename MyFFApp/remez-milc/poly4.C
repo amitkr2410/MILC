@@ -89,11 +89,11 @@ int main (int argc, char* argv[]) {
 
     // For the MD term we need only the inverse
     work( y1,4,m1,  y2,4,m2,  y3,4,m3,  y4,4,m4, order1, 
-	  lambda_low, lambda_high, precision, "OMIT", "MD" );
+	  lambda_low, lambda_high, precision, (char*)"OMIT", (char*)"MD" );
     // The random source term takes the function and action term,
     // the inverse
     work( y1,8,m1,  y2,8,m2,  y3,8,m3,  y4,8,m4, order2, 
-	  lambda_low, lambda_high, precision, "GR", "FA" );
+	  lambda_low, lambda_high, precision, (char*)"GR", (char*)"FA" );
   }
 }
 
