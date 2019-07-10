@@ -13,6 +13,7 @@
 
 void monte(int NumStp)
 {
+  printf("Amit: In file ../generic_pg/monte.c, start of function monte(int NumStp)  \n");
   /* Do K-P quasi-heat bath by SU(2) subgroups */
 int NumTrj,Nhit, index1, ina, inb,ii;
 int parity;
@@ -240,6 +241,7 @@ printf(" ave kp steps = %e, ave creutz steps = %e\n",
 		} /*  hits */
 	} /*  direction */
         }} /* parity and NumTrj */
-  
+
+	printf("Amit: In file ../generic_pg/monte.c, end of function monte(int NumStp)  \n");  
 } /* monte */
 

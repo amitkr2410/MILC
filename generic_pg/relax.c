@@ -11,6 +11,7 @@
 
 void relax(int NumStp)
 {
+  printf("Amit: ../generic_pg/relax.c, start of function relax(int NumStp) \n");
   /* Do overrelaxation by SU(2) subgroups */
 int NumTrj,Nhit, index1, ina, inb,ii;
 int parity;
@@ -73,6 +74,6 @@ Nhit = 3;
 		} /*  hits */
 		} /*  direction */
 	} /* parity, NumTrj*/
- 
+	printf("Amit: ../generic_pg/relax.c, end of function relax(int NumStp) "); 
 } /* relax */
 

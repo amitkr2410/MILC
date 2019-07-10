@@ -1,0 +1,43 @@
+Pure gauge SU3
+MIMD version 7
+Machine = Scalar processor, with 1 nodes
+Overrelaxed/quasi-heat bath algorithm
+start: Tue Jun 18 16:14:14 2019
+
+type 0 for no prompts, 1 for prompts, or 2 for proofreading
+nx 4
+ny 4
+nz 4
+nt 8
+iseed 8352
+LAYOUT = Hypercubes, options = with fixed node_geometry
+ON EACH NODE 4 x 4 x 4 x 8
+Mallocing 0.4 MBytes per node for lattice
+WARNING!!: Resetting random seed
+
+
+warms 0
+trajecs 2
+traj_between_meas 1
+beta 6
+steps_per_trajectory 4
+qhb_steps 4
+fresh 
+NOT fixing the gauge
+forget 
+Amit generic/io_helpers.c coldlat() function called: unit gauge configuration loaded
+Amit generic/io_helpers reload_lattice() function called: CHECK PLAQ: 3.000000e+00 3.000000e+00
+Amit generic/io_helpers reload_lattice() function called: CHECK NERSC LINKTR: 1.000000e+00 CKSUM: 0
+Unitarity checked.  Max deviation 0.00e+00
+Time to check unitarity = 1.258850e-04
+WARMUPS COMPLETED
+GMES 9.990000e+01 9.990000e+01 9.990000e+01 1.847285e+00 1.843035e+00
+GMES 9.990000e+01 9.990000e+01 9.990000e+01 1.801442e+00 1.790932e+00
+RUNNING COMPLETED
+Time = 5.485010e-02 seconds
+
+
+get_i(0): EOF on input.
+Amit generic/com_vanilla.c start of function void normal_exit(int status) 
+exit: Tue Jun 18 16:14:14 2019
+

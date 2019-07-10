@@ -1,0 +1,31 @@
+#!/bin/bash
+
+File=( 
+su3_ora.5p81.sample-in  
+su3_ora.5p83.sample-in 
+su3_ora.6p27.sample-in    
+su3_ora.6p34.sample-in 
+ )
+#File=()
+
+
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/AmitPureGauge
+a=$1
+
+echo "This is Beta = ("  ${File[$a]} 
+
+INPUT=${MyDIR}/${File[$a]}
+#SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
+echo "Input file used is at "  ${INPUT}
+#echo "Screenoutput is at " ${SCREENOUTPUT}
+TimeOutput=${MyDIR}/Output/TimeFor${File[$a]}
+cd ${MyDIR}
+
+echo "${INPUT}" >> ${TimeOutput}
+echo "JOB INFO: Queue=" $PBS_O_QUEUE ",  NodeName="$HOSTNAME   ",  JobName="$PBS_JOBNAME  ",  JobID="$PBS_JOBID >> ${TimeOutput}
+echo "mpirun -np 8 ./su3_ora  ${INPUT}" >> ${TimeOutput}
+echo $(date) >> ${TimeOutput}
+
+mpirun -np 8 ./su3_ora  ${File[$a]}
+
+echo $(date) >>  ${TimeOutput}
