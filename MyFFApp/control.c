@@ -29,6 +29,7 @@ int main( int argc, char **argv )
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
   int SaveLattice=0; int UseSavedConfiguration=1;
+  int FolderNumber=0;
   int i, MeasurementCount, traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
@@ -73,8 +74,8 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"Output/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
-      sprintf(FileNameTraceFmunu,"Output/DataTraceFmunuNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[5], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[4], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
       fploop = fopen(FileNamePloop,"w");
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
@@ -193,10 +194,12 @@ int main( int argc, char **argv )
 	    } /* end of if-condition for trace of fmunu correlators */
 	  
 
+	  int FolderNumberIndex = (iters-1)/1000;
+	  FolderNumber = 1000*(1 + FolderNumberIndex);
+
 	  if( SaveLattice==1  )
-	    {
-	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+	    { int flag=SAVE_SERIAL;
+	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d",argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -207,12 +210,12 @@ int main( int argc, char **argv )
 	    {
 	      if(UseSavedConfiguration==0)
 		{ rephase(ON);
-		  printf(" Amit MyFFApp/control.c s_iters=update() called for beta= %.4f, u0=%.4f, at iters = %d \n",beta, u0, iters);
+		  printf(" Amit MyFFApp/control.c s_iters=update() called for beta= %.4f, u0=%.4f, at iters = %d, and FolderNumber=%d \n",beta, u0, iters, FolderNumber);
 		  s_iters=update();
 		}
 	      else 
-		{int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/RCloneUpload/Nt4_Ns16Test1/Beta5.9000/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+		{ int flag=RELOAD_SERIAL;
+		  sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 		  reload_lattice( flag, SaveLatticeFileName);
 		}
 	    }
