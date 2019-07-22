@@ -26,7 +26,7 @@ EXTERN gauge_header start_lat_hdr;	/* Input gauge field header */
 
 int main( int argc, char **argv )
 {
-  int ComputePLoopFreeEnergy=1;
+  int ComputePLoopFreeEnergy=0;
   int ComputeTraceFmunu =1;
   int SaveLattice=0; int UseSavedConfiguration=1;
   int FolderNumber=0;
@@ -57,7 +57,7 @@ int main( int argc, char **argv )
 
   //FileName to save observables
   FILE *fploop, *ftracefmunu;
-  char FileNamePloop[10000], FileNameTraceFmunu[1000], SaveLatticeFileName[10000];
+  char FileNamePloop[10000], FileNameTraceFmunu[1000], FileNameTraceFmunu2[1000], SaveLatticeFileName[10000];
 
   // Initialization 
   initialize_machine(&argc,&argv);
@@ -75,7 +75,8 @@ int main( int argc, char **argv )
   while( readin(prompt) == 0)
     {
       sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[5], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
-      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[4], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[4], nt, nx, beta);
+      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[4], nt, nx, beta);
       fploop = fopen(FileNamePloop,"w");
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
