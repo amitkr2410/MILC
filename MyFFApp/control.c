@@ -75,8 +75,8 @@ int main( int argc, char **argv )
   while( readin(prompt) == 0)
     {
       sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[5], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
-      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[4], nt, nx, beta);
-      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[4], nt, nx, beta);
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
+      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
       fploop = fopen(FileNamePloop,"w");
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
