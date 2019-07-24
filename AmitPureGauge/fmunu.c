@@ -3,8 +3,7 @@
 /* and the topological charge.                                   */
 
 /* Includes */
-//#include "ks_imp_includes.h"
-#include "pure_gauge_includes.h"
+#include "ks_imp_includes.h"
 #include "../include/field_strength.h"
 //#include "../include/generic.h"
 /* Computes the real trace of the su3 matrix product: ReTr(A*B) */
@@ -68,7 +67,7 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   /* Site variables */
   register int i;
   register site *s;
-  double Denominator=0; 
+
   /* Temporary component storage */
   su3_matrix *ft, *fs;
   su3_matrix *F31, *F32, *F41, *F42;
@@ -88,19 +87,18 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
     F32 = &(s->fieldstrength[FS_YZ]);
     F41 = &(s->fieldstrength[FS_XT]);
     F42 = &(s->fieldstrength[FS_YT]);
-    Denominator += 1.0;
+
     //printf("F31 is \n");DisplayNNMatrix(F31);
     //printf("F32 is \n");DisplayNNMatrix(F32);
     //printf("F41 is \n");DisplayNNMatrix(F41);
     //printf("F42 is \n");DisplayNNMatrix(F42);
-    //printf("\n SumTraceF3iF3iMinusF4iF4i  = ");Display(*TraceF3iF3iMinusF4iF4i);
     //printf("\n TraceF31F31  = ");Display(trace_nn(F31,F31));    
     CADD(*TraceF3iF3iMinusF4iF4i, trace_nn(F31,F31) , *TraceF3iF3iMinusF4iF4i);
-    //printf("\t SumTraceF3iF3iMinusF4iF4i = ");Display(*TraceF3iF3iMinusF4iF4i);
+    //printf("\t TraceF3iF3iMinusF4iF4i = ");Display(*TraceF3iF3iMinusF4iF4i);
     
-    // printf("\n TraceF32F32  = ");Display(trace_nn(F32,F32));
+    //printf("\n TraceF32F32  = ");Display(trace_nn(F32,F32));
     CADD(*TraceF3iF3iMinusF4iF4i, trace_nn(F32,F32) , *TraceF3iF3iMinusF4iF4i);
-    //printf("\t SumTraceF3iF3iMinusF4iF4i = ");Display(*TraceF3iF3iMinusF4iF4i);
+    //printf("\t TraceF3iF3iMinusF4iF4i = ");Display(*TraceF3iF3iMinusF4iF4i);
     
     //printf("\n TraceF41F41  = ");Display(trace_nn(F41,F41));
     CSUB(*TraceF3iF3iMinusF4iF4i, trace_nn(F41,F41) , *TraceF3iF3iMinusF4iF4i);
@@ -118,9 +116,7 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
     //printf("\t TraceF4iF3iPlusF3iF4i = ");Display(*TraceF4iF3iPlusF3iF4i);
     
   }
-  //printf("\n Before g_complexsum: TraceF3iF3iMinusF4iF4i = "); Display(*TraceF3iF3iMinusF4iF4i);
-  //printf("\n Before g_complexsum: TraceF4iF3iPlusF3iF4i = "); Display(*TraceF4iF3iPlusF3iF4i);
-  g_doublesum(&Denominator);
+
   g_complexsum(TraceF3iF3iMinusF4iF4i);    
   g_complexsum(TraceF4iF3iPlusF3iF4i);
   /* Sum over all nodes */
@@ -132,15 +128,14 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   (*TraceF4iF3iPlusF3iF4i).imag = ((*TraceF4iF3iPlusF3iF4i).imag)*2.0;
   /* Normalizations */
   
-  (*TraceF3iF3iMinusF4iF4i).real = -((*TraceF3iF3iMinusF4iF4i).real)/(volume);
-  (*TraceF3iF3iMinusF4iF4i).imag = -((*TraceF3iF3iMinusF4iF4i).imag)/(volume);
-  (*TraceF4iF3iPlusF3iF4i).real  = -((*TraceF4iF3iPlusF3iF4i).real)/(volume);
-  (*TraceF4iF3iPlusF3iF4i).imag  = -((*TraceF4iF3iPlusF3iF4i).imag)/(volume);
+  (*TraceF3iF3iMinusF4iF4i).real = -((*TraceF3iF3iMinusF4iF4i).real)/(4.0*volume*16.0);
+  (*TraceF3iF3iMinusF4iF4i).imag = -((*TraceF3iF3iMinusF4iF4i).imag)/(4.0*volume*16.0);
+  (*TraceF4iF3iPlusF3iF4i).real  = -((*TraceF4iF3iPlusF3iF4i).real)/(4.0*volume*16.0);
+  (*TraceF4iF3iPlusF3iF4i).imag  = -((*TraceF4iF3iPlusF3iF4i).imag)/(4.0*volume*16.0);
   
-  printf("\n After g_complexsum:Total TraceF3iF3iMinusF4iF4i = "); Display(*TraceF3iF3iMinusF4iF4i);
-  printf("\n After g_complexsum:Total TraceF4iF3iPlusF3iF4i = "); Display(*TraceF4iF3iPlusF3iF4i);
-  printf("\n After g_comlexsum:Denominator is %e \n", Denominator);
-  printf("Volume is %i \n", volume);
+  printf("\n Total TraceF3iF3iMinusF4iF4i = "); Display(*TraceF3iF3iMinusF4iF4i);
+  printf("\n Total TraceF4iF3iPlusF3iF4i = "); Display(*TraceF4iF3iPlusF3iF4i);
+  printf("\n");
 }
 
 
