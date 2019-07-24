@@ -56,8 +56,9 @@ int main(int argc, char *argv[])
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"Output/DataPloopNt%d_Ns%d_Beta%.4f_Exec%s.txt", nt, nx, beta, argv[1]);
-      sprintf(FileNameTraceFmunu,"Output/DataTraceFmunuNt%d_Ns%d_Beta%.4f_Exec%s.txt", nt, nx, beta,argv[1]);
+      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f.txt", argv[5], nt, nx, beta);
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
+      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
       fploop = fopen(FileNamePloop,"w");
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
@@ -148,11 +149,16 @@ int main(int argc, char *argv[])
 	      fprintf(ftracefmunu,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag, CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag );
 	    } /* end of if-condition for trace of fmunu correlators */
 	  
-
+	  int FolderNumberIndex = (iters-1)/1000;
+          FolderNumber = 1000*(1 + FolderNumberIndex);
+	  sprintf(FolderName,"mkdir %s/Nt%d_Ns%d/Beta%.4f_%d",argv[4], nt, nx, beta, FolderNumber);
 	  if( SaveLattice==1  )
 	    {
+	      if((FolderNumber-1000+1)==iters  && this_node==1)
+                {system(FolderName);
+                }
 	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"GaugeConfiguration/Lattice_Nt%d_Ns%d_Beta%.4f_Exec%s.configuration.%d", nt, nx, beta,argv[1],  iters);
+	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_Exec%s.configuration.%d", argv[4], nt, nx, beta, FolderNumber, nt, nx, beta,argv[1],  iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -168,7 +174,7 @@ int main(int argc, char *argv[])
 		}
 	      else 
 		{int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"GaugeConfiguration/Lattice_Nt%d_Ns%d_Beta%.4f_Exec%s.configuration.%d", nt, nx, beta, argv[1], iters);
+		  sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_Exec%s.configuration.%d", argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, argv[1], iters);
 		  reload_lattice( flag, SaveLatticeFileName);
 		}
 	    }
