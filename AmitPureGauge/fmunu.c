@@ -3,7 +3,8 @@
 /* and the topological charge.                                   */
 
 /* Includes */
-#include "ks_imp_includes.h"
+//#include "ks_imp_includes.h"
+#include "pure_gauge_includes.h"
 #include "../include/field_strength.h"
 //#include "../include/generic.h"
 /* Computes the real trace of the su3 matrix product: ReTr(A*B) */
