@@ -57,7 +57,7 @@ int main( int argc, char **argv )
 
   //FileName to save observables
   FILE *fploop, *ftracefmunu;
-  char FileNamePloop[10000], FileNameTraceFmunu[1000], FileNameTraceFmunu2[1000], SaveLatticeFileName[10000];
+  char FileNamePloop[10000], FileNameTraceFmunu[1000], FileNameTraceFmunu2[1000], SaveLatticeFileName[10000], FolderName[10000];
 
   // Initialization 
   initialize_machine(&argc,&argv);
@@ -197,9 +197,13 @@ int main( int argc, char **argv )
 
 	  int FolderNumberIndex = (iters-1)/1000;
 	  FolderNumber = 1000*(1 + FolderNumberIndex);
-
+	  sprintf(FolderName,"mkdir %s/Nt%d_Ns%d/Beta%.4f_%d",argv[4], nt, nx, beta, FolderNumber);
 	  if( SaveLattice==1  )
-	    { int flag=SAVE_SERIAL;
+	    { 
+	      if((FolderNumber-1000+1)==iters  && this_node==1)
+                {system(FolderName);
+                }
+	      int flag=SAVE_SERIAL;
 	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d",argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
