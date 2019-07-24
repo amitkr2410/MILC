@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
   int SaveLattice=0; int UseSavedConfiguration=1;
+  int FolderNumber=0;
   int i, MeasurementCount, traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
 
   //FileName to save observables 
   FILE *fploop, *ftracefmunu;
-  char FileNamePloop[100000], FileNameTraceFmunu[100000], SaveLatticeFileName[100000];
+  char FileNamePloop[100000], FileNameTraceFmunu[100000], FileNameTraceFmunu2[1000], SaveLatticeFileName[100000], FolderName[10000];
   initialize_machine(&argc,&argv);
 
   /* Remap standard I/O */
