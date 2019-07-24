@@ -243,26 +243,26 @@ MACHINE_DEP_IO   = io_ansi.o # (io_ansi.o io_nonansi.o io_dcap.o)
 
 # Edit these "wants"
 
-WANTQOP =  #true # or blank. Implies HAVEQDP, HAVEQOP, HAVEQMP.
+WANTQOP =  true # or blank. Implies HAVEQDP, HAVEQOP, HAVEQMP.
 
-WANTQIO =  #true # or blank.  Implies HAVEQMP.
+WANTQIO =  true # or blank.  Implies HAVEQMP.
 
-WANTQMP =  #true # or blank.
+WANTQMP =  true # or blank.
 
 # Edit these locations for the installed SciDAC packages
 # It is assumed that these are the parents of "include" and "lib"
 
-SCIDAC = ${HOME}/Lattice
+SCIDAC = ${HOME}/lqcdamd/install
 # Parallel versions
-QMPPAR = ${SCIDAC}/qmpbuild
-QIOPAR = $(SCIDAC)/qiobuild
+QMPPAR = ${SCIDAC}/qmp
+QIOPAR = $(SCIDAC)/qio
 # Single processor versions
 QMPSNG = ${SCIDAC}/qmp-single
 QIOSNG = $(SCIDAC)/qio-single
-QLA = ${SCIDAC}/qlabuild
+QLA = ${SCIDAC}/qla
 # Either version
-QDP = ${SCIDAC}/qdpbuild
-QOPQDP = ${SCIDAC}/qopqdpbuild
+QDP = ${SCIDAC}/qdp
+QOPQDP = ${SCIDAC}/qopqdp
 #QOPQDP = ${SCIDAC}/qopqdp-lapack # BG/P
 
 QOP = ${QOPQDP}
