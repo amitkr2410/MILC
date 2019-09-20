@@ -1,14 +1,18 @@
 #!/bin/bash 
 
-MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFNt16
+MyDIR=/wsu/home/fy/fy41/fy4125/Measurement/MILC/MyFFApp
 cd ${MyDIR}
+Nt=$1
+Ns=$2
+BetaIndex=$3
+ncpus=$4
 
-for (( Trial=9; Trial<11; Trial++ )) #69
+for (( Trial=0; Trial<1; Trial++ )) #69
 do
-    echo Submitting Job \# $Trial
-
-    #LogFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNewNt4Output${Trial}.out
-    ErrFile=/wsu/home/fy/fy41/fy4125/Log/ScreenNt16New${Trial}.err
+    echo Submitting Job \# $Trial ${BetaIndex}
+    # BetaIndex=$Trial
+    #LogFile=/wsu/home/fy/fy41/fy4125/LogLattice/ScreenNewNt4Output${BetaIndex}.out
+    ErrFile=/wsu/home/fy/fy41/fy4125/LogLattice/CommodoreFullQCD_Nt${Nt}${BetaIndex}.err
     LogFile=/dev/null
     #ErrFile=/dev/null
     Exec=${MyDIR}/simple_job
@@ -23,7 +27,7 @@ do
    ##   qsub -V -q mwsuq  -l cpu_type=Intel -l cpu_model=E5-2697v3 -l mem=16gb -l ncpus=8 -l mpiprocs=8 -N Nt4i$Trial -o $LogFile -e $ErrFile --        $Exec $Trial
 
    #qsub -V -q wsuq  -l select=4:ncpus=8:mem=16gb:mpiprocs=8:cpu_type=Intel -N Nt16i$Trial -o $LogFile -e $ErrFile --  $Exec $Trial 
-   qsub -V   -l select=1:ncpus=16:mem=16gb:mpiprocs=16:cpu_type=Intel  -N Nt16i$Trial -o $LogFile -e $ErrFile --  $Exec $Trial
+   qsub -V  -q wsuq -l select=1:ncpus=8:mem=4gb:mpiprocs=8:cpu_type=Intel  -N Nt${Nt}FQ${BetaIndex} -o $LogFile -e $ErrFile --  $Exec $Nt $Ns ${BetaIndex} ${ncpus}
 done
 
 ##qsub -V -I -q eamxq -- /wsu/home/fy/fy41/fy4125/RUN/PP1/simple_job 0

@@ -96,7 +96,7 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   //cleanup_gather(tag);
 
   // //Fmunu at neighbouring site
-  su3_matrix *fieldstrength;
+  //su3_matrix *fieldstrength;
   su3_matrix *LinkZF31, *LinkZF32, *LinkZF41, *LinkZF42;
   su3_matrix *DzF31,    *DzF32,    *DzF41,    *DzF42;
   su3_matrix *F31DzF31, *F32DzF32, *F41DzF41, *F42DzF42,  *LinkZ;

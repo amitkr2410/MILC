@@ -3,7 +3,7 @@ Nt=$1
 Ns=$2
 BetaIndex=$3
 ncpus=$4
-MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFNt16
+MyDIR=/wsu/home/fy/fy41/fy4125/Measurement/MILC/MyFFApp
 
 BetaNameNs16=( 
 inputNt${Nt}_Ns16_Beta5.9000_ml0.006600_ms0.132000_u0_1.000.txt
@@ -49,7 +49,7 @@ INPUT=${MyDIR}/Nt${Nt}Input/${BETAInputFile}
 #SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
 echo "Input file used is at "  ${INPUT}
 #echo "Screenoutput is at " ${SCREENOUTPUT}
-TimeOutput=${MyDIR}/Output/Time_Err${BETAInputFile}
+TimeOutput=${MyDIR}/OutputNt${Nt}/ErrNode_Time${BETAInputFile}
 cd ${MyDIR}
 
 echo ${INPUT} >> ${TimeOutput}
@@ -57,6 +57,6 @@ echo "JOB INFO: Queue=" $PBS_O_QUEUE ",  NodeName="$HOSTNAME   ",  JobName="$PBS
 echo "mpirun -np ${ncpus} ./su3_rhmc_hisq  ${INPUT} /dev/null /dev/null   /wsu/tmp/AmitConfiguration  OutputNt${Nt} " >> ${TimeOutput}
 echo $(date) >> ${TimeOutput}
 
-mpirun -np ${ncpus} ./su3_rhmc_hisq  ${INPUT} /dev/null /dev/null   /wsu/tmp/AmitConfiguration  OutputNt${Nt}  > /dev/null
+mpirun -np ${ncpus} ./su3_rhmc_hisq  ${INPUT} /dev/null /dev/null  /wsu/tmp/AmitConfiguration  OutputNt${Nt}  > /dev/null
 
 echo $(date) >>  ${TimeOutput}
