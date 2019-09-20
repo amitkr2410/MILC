@@ -29,6 +29,11 @@ int main( int argc, char **argv )
   int ComputePLoopFreeEnergy=0;
   int ComputeTraceFmunu =1;
   int SaveLattice=0; int UseSavedConfiguration=1;
+  char InputDataFileDIR[100000], OutputDataFileDIR[100000], SaveLatticeDataFileDIR[100000];
+  sprintf(InputDataFileDIR,"%s",argv[1]);
+  sprintf(SaveLatticeDataFileDIR,"%s",argv[4]);
+  sprintf(OutputDataFileDIR,"%s",argv[5]);
+  
   int FolderNumber=0;
   int i, MeasurementCount, traj_done, naik_index;
   int prompt;
@@ -47,14 +52,16 @@ int main( int argc, char **argv )
   double CurrentBareFreeEnergyTadpoleCorrected=0.0,  SumBareFreeEnergyTadpoleCorrected=0.0, AverageBareFreeEnergyTadpoleCorrected=0.0;
 
   complex CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i, AverageTraceF3iF3iMinusF4iF4i;
-  complex CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i, AverageTraceF4iF3iPlusF3iF4i;
-  
+  complex CurrentTraceF4iF3iPlusF3iF4i,  SumTraceF4iF3iPlusF3iF4i, AverageTraceF4iF3iPlusF3iF4i;
+  complex CurrentTraceF3iDzF3iMinusF4iDzF4i, SumTraceF3iDzF3iMinusF4iDzF4i, AverageTraceF3iDzF3iMinusF4iDzF4i;
+  complex CurrentTraceF4iDzF3iPlusF3iDzF4i,  SumTraceF4iDzF3iPlusF3iDzF4i,  AverageTraceF4iDzF3iPlusF3iDzF4i;  
   //Initialize variable to zero
   CurrentPolyakovLoop=cmplx(0.0,0.0); SumPolyakovLoop=cmplx(0.0,0.0); AveragePolyakovLoop=cmplx(0.0,0.0);
   CurrentTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); CurrentTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
   SumTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); AverageTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0);
   SumTraceF4iF3iPlusF3iF4i  =cmplx(0.0,0.0); AverageTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
-
+  SumTraceF3iDzF3iMinusF4iDzF4i = cmplx(0.0,0.0); AverageTraceF3iDzF3iMinusF4iDzF4i= cmplx(0.0,0.0);
+  SumTraceF4iDzF3iPlusF3iDzF4i  = cmplx(0.0,0.0); AverageTraceF4iDzF3iPlusF3iDzF4i = cmplx(0.0,0.0);
   //FileName to save observables
   FILE *fploop, *ftracefmunu;
   char FileNamePloop[10000], FileNameTraceFmunu[1000], FileNameTraceFmunu2[1000], SaveLatticeFileName[10000], FolderName[10000];
@@ -74,9 +81,9 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt",argv[5], nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
-      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
-      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt",argv[5], nt, nx, beta);
+      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
+      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
       fploop = fopen(FileNamePloop,"w");
       ftracefmunu = fopen(FileNameTraceFmunu,"w");
 
@@ -184,7 +191,7 @@ int main( int argc, char **argv )
 	  if(ComputeTraceFmunu==1)
 	    {
 	      CurrentTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  CurrentTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
-              fmunu_fmunu(&CurrentTraceF3iF3iMinusF4iF4i, &CurrentTraceF4iF3iPlusF3iF4i);
+              fmunu_fmunu(&CurrentTraceF3iF3iMinusF4iF4i, &CurrentTraceF4iF3iPlusF3iF4i, &CurrentTraceF3iDzF3iMinusF4iDzF4i, &CurrentTraceF4iDzF3iPlusF3iDzF4i);
               CADD(SumTraceF3iF3iMinusF4iF4i, CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i);
               CADD(SumTraceF4iF3iPlusF3iF4i, CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i);
               CDIVREAL(SumTraceF3iF3iMinusF4iF4i, MeasurementCount, AverageTraceF3iF3iMinusF4iF4i);
@@ -204,7 +211,7 @@ int main( int argc, char **argv )
                 {system(FolderName);
                 }
 	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d",argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
+	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d",SaveLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -220,7 +227,7 @@ int main( int argc, char **argv )
 		}
 	      else 
 		{ int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", argv[4], nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
+		  sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", SaveLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 		  reload_lattice( flag, SaveLatticeFileName);
 		}
 	    }
