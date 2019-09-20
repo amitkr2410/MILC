@@ -66,6 +66,7 @@ void Display(complex a)
 //void fmunu_fmunu(double *time, double *space, double *charge);
 void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i, complex *TraceF3iDzF3iMinusF4iDzF4i, complex *TraceF4iDzF3iPlusF3iDzF4i)
 {
+  printf("Start of fmunu_fmunu function");
   /* Site variables */
   register int i;
   register site *s;
@@ -95,7 +96,7 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   //cleanup_gather(tag);
 
   // //Fmunu at neighbouring site
-  // //su3_matrix *fieldstrength;
+  su3_matrix *fieldstrength;
   su3_matrix *LinkZF31, *LinkZF32, *LinkZF41, *LinkZF42;
   su3_matrix *DzF31,    *DzF32,    *DzF41,    *DzF42;
   su3_matrix *F31DzF31, *F32DzF32, *F41DzF41, *F42DzF42,  *LinkZ;
@@ -103,38 +104,34 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   msg_tag *tagF31, *tagF32, *tagF41, *tagF42;
   tagF31   = start_gather_site( F_OFFSET(fieldstrength[FS_XZ]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[0] );
   tagF32   = start_gather_site( F_OFFSET(fieldstrength[FS_YZ]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[1] );
+  
   tagF41   = start_gather_site( F_OFFSET(fieldstrength[FS_XT]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[2] );
   tagF42   = start_gather_site( F_OFFSET(fieldstrength[FS_YT]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[3] );
+  
   wait_gather(tagF31); 
   wait_gather(tagF32);
   wait_gather(tagF41);
   wait_gather(tagF42);
-  /* Loop over each site to sum F_mu,nu components */
+  
+  // Loop over each site to sum F_mu,nu components 
   FORALLSITES(i, s) {
         
     F31 = &(s->fieldstrength[FS_XZ]);
     F32 = &(s->fieldstrength[FS_YZ]);
     F41 = &(s->fieldstrength[FS_XT]);
     F42 = &(s->fieldstrength[FS_YT]);
+    
     LinkZ = &(s->link[ZUP]);
     mult_su3_nn( LinkZ, F31, LinkZF31 );
     mult_su3_nn( LinkZ, F32, LinkZF32 );
     mult_su3_nn( LinkZ, F41, LinkZF41 );
     mult_su3_nn( LinkZ, F42, LinkZF42 );
-
+    
     sub_su3_matrix( (su3_matrix *)(gen_pt[0][i]), LinkZF31, DzF31);
     sub_su3_matrix( (su3_matrix *)(gen_pt[1][i]), LinkZF32, DzF32);
     sub_su3_matrix( (su3_matrix *)(gen_pt[2][i]), LinkZF41, DzF41);
     sub_su3_matrix( (su3_matrix *)(gen_pt[3][i]), LinkZF42, DzF42);
-    mult_su3_nn(F31, DzF31, F31DzF31);
-    mult_su3_nn(F32, DzF32, F32DzF32);
-    mult_su3_nn(F41, DzF41, F41DzF41);
-    mult_su3_nn(F42, DzF42, F42DzF42);
-
-    mult_su3_nn(F31, DzF41, F31DzF41);
-    mult_su3_nn(F32, DzF42, F32DzF42);
-    mult_su3_nn(F41, DzF31, F41DzF31);
-    mult_su3_nn(F42, DzF32, F42DzF32);
+    
     //printf("F31 is \n");DisplayNNMatrix(F31);
     //printf("F32 is \n");DisplayNNMatrix(F32);
     //printf("F41 is \n");DisplayNNMatrix(F41);
@@ -161,30 +158,29 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
     //printf("\n TraceF41F31  = ");Display(trace_nn(F41,F31));
     CADD(*TraceF4iF3iPlusF3iF4i, trace_nn(F42,F32) , *TraceF4iF3iPlusF3iF4i);
     //printf("\t TraceF4iF3iPlusF3iF4i = ");Display(*TraceF4iF3iPlusF3iF4i);
-    *TraceF3iDzF3iMinusF4iDzF4i=cmplx(0.0,0.0);
-    *TraceF4iDzF3iPlusF3iDzF4i = cmplx(0.0,0.0);
-    CADD(*TraceF3iDzF3iMinusF4iDzF4i, trace_su3(F31DzF31), *TraceF3iDzF3iMinusF4iDzF4i);
-    CADD(*TraceF3iDzF3iMinusF4iDzF4i, trace_su3(F32DzF32), *TraceF3iDzF3iMinusF4iDzF4i);
-    CSUB(*TraceF3iDzF3iMinusF4iDzF4i, trace_su3(F41DzF41), *TraceF3iDzF3iMinusF4iDzF4i);
-    CSUB(*TraceF3iDzF3iMinusF4iDzF4i, trace_su3(F42DzF42), *TraceF3iDzF3iMinusF4iDzF4i);
-
-    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_su3(F31DzF41), *TraceF4iDzF3iPlusF3iDzF4i);
-    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_su3(F32DzF42), *TraceF4iDzF3iPlusF3iDzF4i);
-    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_su3(F41DzF31), *TraceF4iDzF3iPlusF3iDzF4i);
-    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_su3(F42DzF32), *TraceF4iDzF3iPlusF3iDzF4i);
-
     
-  }
-  cleanup_gather(tagF31);
-  cleanup_gather(tagF32);
-  cleanup_gather(tagF41);
+    CADD(*TraceF3iDzF3iMinusF4iDzF4i, trace_nn(F31, DzF31), *TraceF3iDzF3iMinusF4iDzF4i);
+    CADD(*TraceF3iDzF3iMinusF4iDzF4i, trace_nn(F32, DzF32), *TraceF3iDzF3iMinusF4iDzF4i);
+    CSUB(*TraceF3iDzF3iMinusF4iDzF4i, trace_nn(F41, DzF41), *TraceF3iDzF3iMinusF4iDzF4i);
+    CSUB(*TraceF3iDzF3iMinusF4iDzF4i, trace_nn(F42, DzF42), *TraceF3iDzF3iMinusF4iDzF4i);
+    
+    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_nn(F31, DzF41), *TraceF4iDzF3iPlusF3iDzF4i);
+    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_nn(F32, DzF42), *TraceF4iDzF3iPlusF3iDzF4i);
+    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_nn(F41, DzF31), *TraceF4iDzF3iPlusF3iDzF4i);
+    CADD(*TraceF4iDzF3iPlusF3iDzF4i , trace_nn(F42, DzF32), *TraceF4iDzF3iPlusF3iDzF4i);
+    
+    }
+  
   cleanup_gather(tagF42);
+  cleanup_gather(tagF41);
+  cleanup_gather(tagF32);   
+  cleanup_gather(tagF31);
 
   g_complexsum(TraceF3iF3iMinusF4iF4i);    
   g_complexsum(TraceF4iF3iPlusF3iF4i);
   g_complexsum(TraceF3iDzF3iMinusF4iDzF4i);
   g_complexsum(TraceF4iDzF3iPlusF3iDzF4i);
-  /* Sum over all nodes */
+  // Sum over all nodes 
   //g_doublesum(time);
   //g_doublesum(space);
   //g_doublesum(charge);

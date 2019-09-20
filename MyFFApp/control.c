@@ -28,12 +28,12 @@ int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=0;
   int ComputeTraceFmunu =1;
-  int SaveLattice=0; int UseSavedConfiguration=1;
+  int SaveLattice=0; int UseSavedConfiguration=0;
   char InputDataFileDIR[100000], OutputDataFileDIR[100000], SaveLatticeDataFileDIR[100000];
-  sprintf(InputDataFileDIR,"%s",argv[1]);
-  sprintf(SaveLatticeDataFileDIR,"%s",argv[4]);
-  sprintf(OutputDataFileDIR,"%s",argv[5]);
-  
+  //  sprintf(InputDataFileDIR,"%s",argv[1]);
+  //sprintf(SaveLatticeDataFileDIR,"%s",argv[4]);
+  //sprintf(OutputDataFileDIR, "%s", argv[5]);
+  sprintf(OutputDataFileDIR, "OutputTest");
   int FolderNumber=0;
   int i, MeasurementCount, traj_done, naik_index;
   int prompt;
