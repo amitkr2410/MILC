@@ -199,15 +199,16 @@ void make_field_strength(  field_offset link_src,       /* field offset for su3_
 	CMULREAL(cc,0.33333333333333333,cc);
 	for(j=0;j<3;j++)
 	  {
-	    //CSUB(FIELD_STRENGTH(component).e[j][j],cc, FIELD_STRENGTH(component).e[j][j]);
+	    CSUB(FIELD_STRENGTH(component).e[j][j],cc, FIELD_STRENGTH(component).e[j][j]);
 	  }
       }
     
     } /* component */
+
   
   free(temp1);
   free(temp2);
-  
+  printf("\n Amit: generic/field_strength.c end of the function \n");  
 } /* make_field_strength() */
 
 
