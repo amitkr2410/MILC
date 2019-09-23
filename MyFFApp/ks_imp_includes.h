@@ -116,6 +116,6 @@ double hmom_action(void);
 void stout_step_rk();
 void staple();
 //void fmunu_fmunu(double *time, double *space, double *charge);
-void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i);
+void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i, complex *TraceF3iDzF3iMinusF4iDzF4i, complex *TraceF4iDzF3iPlusF3iDzF4i);
 #endif /* KS_IMP_INCLUDES_H_ */
 
