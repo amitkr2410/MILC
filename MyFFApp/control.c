@@ -10,7 +10,6 @@
 #ifdef HAVE_QUDA
 #include <quda_milc_interface.h>
 #endif
-
 #ifdef HAVE_QPHIX
 #include "../include/generic_qphix.h"
 #endif
@@ -23,7 +22,24 @@
 #define NULL_FP -1
 
 EXTERN gauge_header start_lat_hdr;	// Input gauge field header 
-
+#include <stdio.h>
+#include <stdlib.h>
+#include<unistd.h>
+#include <sys/stat.h>
+int is_file_exist(const char *fileName)
+{
+  if(!access(fileName, F_OK )){
+    printf("The File %s\t was Found\n",fileName); return 1;
+  }else {printf("The File %s\t was not Found\n",fileName); return 0;}
+}
+/*
+int is_file_exist(const char* filename)
+{
+  struct stat buffer;  int exist = stat(filename,&buffer);
+  if(exist == 0) return 1; //File exists
+  else return 0;  //File not exists
+}
+*/
 int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=1;
@@ -82,7 +98,7 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);          
+      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);          
       sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
       sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuNLO_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
       fploop = fopen(FileNamePloop,"w");
@@ -221,9 +237,9 @@ int main( int argc, char **argv )
 
 	  int FolderNumberIndex = (iters-1)/1000;
 	  FolderNumber = 1000*(1 + FolderNumberIndex);
-	  sprintf(FolderName,"mkdir %s/Nt%d_Ns%d/Beta%.4f_%d",argv[4], nt, nx, beta, FolderNumber);
+
 	  if( SaveLattice==1  )
-	    { 
+	    { sprintf(FolderName,"mkdir %s/Nt%d_Ns%d/Beta%.4f_%d",SaveLatticeDataFileDIR, nt, nx, beta, FolderNumber);
 	      if((FolderNumber-1000+1)==iters  && this_node==1)
                 {system(FolderName);
                 }
@@ -243,9 +259,19 @@ int main( int argc, char **argv )
 		  s_iters=update();
 		}
 	      else 
-		{ int flag=RELOAD_SERIAL;
+		{ int flag=RELOAD_SERIAL;		  
 		  sprintf(ReadLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", ReadLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
-		  reload_lattice( flag, ReadLatticeFileName);
+		  if(is_file_exist(ReadLatticeFileName)==0) 
+		    {
+		      while(is_file_exist(ReadLatticeFileName)==0 && traj_done < trajecs - 1)
+			{
+			  iters++; traj_done++;
+			  FolderNumberIndex = (iters-1)/1000;
+			  FolderNumber = 1000*(1 + FolderNumberIndex);
+			  sprintf(ReadLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", ReadLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
+			}
+		    }
+		   reload_lattice( flag, ReadLatticeFileName);
 		}
 	    }
 	}// end loop over trajectories 
