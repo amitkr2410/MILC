@@ -290,18 +290,18 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   
   (*TraceF3iF3iMinusF4iF4i).real = -((*TraceF3iF3iMinusF4iF4i).real)/(4.0*volume*16.0);
   (*TraceF3iF3iMinusF4iF4i).imag = -((*TraceF3iF3iMinusF4iF4i).imag)/(4.0*volume*16.0);
-  (*TraceF4iF3iPlusF3iF4i).real  = ((*TraceF4iF3iPlusF3iF4i).real)/(4.0*volume*16.0);
-  (*TraceF4iF3iPlusF3iF4i).imag  = ((*TraceF4iF3iPlusF3iF4i).imag)/(4.0*volume*16.0);
+  (*TraceF4iF3iPlusF3iF4i).real  = -((*TraceF4iF3iPlusF3iF4i).real)/(4.0*volume*16.0);
+  (*TraceF4iF3iPlusF3iF4i).imag  = -((*TraceF4iF3iPlusF3iF4i).imag)/(4.0*volume*16.0);
   
   (*TraceF3iDzF3iMinusF4iDzF4i).real = -((*TraceF3iDzF3iMinusF4iDzF4i).real)/(4.0*2.0*volume*16.0);
   (*TraceF3iDzF3iMinusF4iDzF4i).imag = -((*TraceF3iDzF3iMinusF4iDzF4i).imag)/(4.0*2.0*volume*16.0);
-  (*TraceF4iDzF3iPlusF3iDzF4i).real  = ((*TraceF4iDzF3iPlusF3iDzF4i).real)/(4.0*2.0*volume*16.0);
-  (*TraceF4iDzF3iPlusF3iDzF4i).imag  = ((*TraceF4iDzF3iPlusF3iDzF4i).imag)/(4.0*2.0*volume*16.0);
+  (*TraceF4iDzF3iPlusF3iDzF4i).real  = -((*TraceF4iDzF3iPlusF3iDzF4i).real)/(4.0*2.0*volume*16.0);
+  (*TraceF4iDzF3iPlusF3iDzF4i).imag  = -((*TraceF4iDzF3iPlusF3iDzF4i).imag)/(4.0*2.0*volume*16.0);
 
   (*TraceF3iD2zF3iMinusF4iD2zF4i).real = -((*TraceF3iD2zF3iMinusF4iD2zF4i).real)/(4.0*volume*16.0);
   (*TraceF3iD2zF3iMinusF4iD2zF4i).imag = -((*TraceF3iD2zF3iMinusF4iD2zF4i).imag)/(4.0*volume*16.0);
-  (*TraceF4iD2zF3iPlusF3iD2zF4i).real  = ((*TraceF4iD2zF3iPlusF3iD2zF4i).real)/(4.0*volume*16.0);
-  (*TraceF4iD2zF3iPlusF3iD2zF4i).imag  = ((*TraceF4iD2zF3iPlusF3iD2zF4i).imag)/(4.0*volume*16.0);
+  (*TraceF4iD2zF3iPlusF3iD2zF4i).real  = -((*TraceF4iD2zF3iPlusF3iD2zF4i).real)/(4.0*volume*16.0);
+  (*TraceF4iD2zF3iPlusF3iD2zF4i).imag  = -((*TraceF4iD2zF3iPlusF3iD2zF4i).imag)/(4.0*volume*16.0);
   
   printf("\n Total TraceF3iF3iMinusF4iF4i = "); Display(*TraceF3iF3iMinusF4iF4i);
   printf("\n Total TraceF4iF3iPlusF3iF4i = ");  Display(*TraceF4iF3iPlusF3iF4i);
