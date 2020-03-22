@@ -139,10 +139,10 @@ void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i
   tagF41Plus   = start_gather_site( F_OFFSET(fieldstrength[FS_XT]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[2] );
   tagF42Plus   = start_gather_site( F_OFFSET(fieldstrength[FS_YT]), sizeof(su3_matrix), ZUP, EVENANDODD, gen_pt[3] );
   
-  tagF31Minus  = start_gather_site( F_OFFSET(fieldstrength[FS_XZ]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[4] );
-  tagF32Minus  = start_gather_site( F_OFFSET(fieldstrength[FS_YZ]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[5] );
-  tagF41Minus  = start_gather_site( F_OFFSET(fieldstrength[FS_XT]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[6] );
-  tagF42Minus  = start_gather_site( F_OFFSET(fieldstrength[FS_YT]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[7] );
+  tagF31Minus   = start_gather_site( F_OFFSET(fieldstrength[FS_XZ]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[4] );
+  tagF32Minus   = start_gather_site( F_OFFSET(fieldstrength[FS_YZ]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[5] );
+  tagF41Minus   = start_gather_site( F_OFFSET(fieldstrength[FS_XT]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[6] );
+  tagF42Minus   = start_gather_site( F_OFFSET(fieldstrength[FS_YT]), sizeof(su3_matrix), ZDOWN, EVENANDODD, gen_pt[7] );
 
   wait_gather(tagF31Plus);    wait_gather(tagF32Plus);   wait_gather(tagF41Plus);   wait_gather(tagF42Plus);
   wait_gather(tagF31Minus);   wait_gather(tagF32Minus);  wait_gather(tagF41Minus);  wait_gather(tagF42Minus);
