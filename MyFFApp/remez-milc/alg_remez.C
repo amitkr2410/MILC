@@ -16,7 +16,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"alg_remez.h"
-
+#include "string"
 
 // Constructor
 AlgRemez::AlgRemez(double lower, double upper, long precision) 
@@ -136,7 +136,8 @@ double AlgRemez::generateApprox(int num_degree, int den_degree,
     exit( 1 );
   }
 
-  char *fname = "generateApprox(int, unsigned long, unsigned long)";
+  //char *fname = "generateApprox(int, unsigned long, unsigned long)";
+  // string Amit = "generateApprox(int, unsigned long, unsigned long)";
 
   printf("# Degree of the approximation is (%d,%d)\n", num_degree, den_degree);
   printf("# Approximating the function (x+4*%f^2)^(%d/%d) (x+4*%f^2)^(%d/%d) (x+4*%f^2)^(%d/%d) (x+4*%f^2)^(%d/%d)\n", m1, pnum1, pden1, m2, pnum2, pden2, m3, pnum3, pden3, m4, pnum4, pden4);

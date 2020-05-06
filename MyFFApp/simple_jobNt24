@@ -1,0 +1,37 @@
+#!/bin/bash
+
+File=( 
+inputNt24_Ns24_Beta6.0000_ml0.005690_ms0.113800_u0_1.000.txt 
+inputNt24_Ns24_Beta6.2150_ml0.004310_ms0.086200_u0_1.000.txt 
+inputNt24_Ns24_Beta6.2850_ml0.003950_ms0.079000_u0_1.000.txt 
+inputNt24_Ns24_Beta6.4230_ml0.003350_ms0.067000_u0_1.000.txt 
+inputNt24_Ns24_Beta6.6640_ml0.002570_ms0.051400_u0_1.000.txt 
+inputNt24_Ns24_Beta6.9500_ml0.001930_ms0.038600_u0_1.000.txt 
+inputNt24_Ns24_Beta7.1500_ml0.001600_ms0.032000_u0_1.000.txt 
+inputNt24_Ns24_Beta7.3730_ml0.001250_ms0.025000_u0_1.000.txt 
+inputNt24_Ns24_Beta7.5960_ml0.001010_ms0.020200_u0_1.000.txt 
+inputNt24_Ns24_Beta7.8250_ml0.000820_ms0.016400_u0_1.000.txt  
+ )
+#File=()
+
+
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFAppNt6Ns24
+a=$1
+
+echo "This is Beta = ("  ${File[$a]} 
+
+INPUT=${MyDIR}/Nt24Input/${File[$a]}
+#SCREENOUTPUT=/wsu/home/fy/fy41/fy4125/Log/ScreenOutput${Beta[$a]}.out
+echo "Input file used is at "  ${INPUT}
+#echo "Screenoutput is at " ${SCREENOUTPUT}
+TimeOutput=${MyDIR}/OutputNt24/TimeFor${File[$a]}
+cd ${MyDIR}
+
+echo "${INPUT}" >> ${TimeOutput}
+echo "JOB INFO: Queue=" $PBS_O_QUEUE ",  NodeName="$HOSTNAME   ",  JobName="$PBS_JOBNAME  ",  JobID="$PBS_JOBID >> ${TimeOutput}
+echo "mpirun -np 32 ./su3_rhmc_hisq  ${INPUT}  dev/null /dev/null   /wsu/tmp/AmitConfiguration OutputNt24" >> ${TimeOutput}
+echo $(date) >> ${TimeOutput}
+
+mpirun -np 32 ./su3_rhmc_hisq  ${INPUT} /dev/null /dev/null   /wsu/tmp/AmitConfiguration  OutputNt24
+
+echo $(date) >>  ${TimeOutput}

@@ -1,9 +1,10 @@
 CC = gcc
 CXX = g++
-LDFLAGS = -L$(HOME)/gmp/lib -lmpfr -lgmp -Wl,--rpath,/usr/local/lib64
+# LDFLAGS = -L$(HOME)/gmp/lib -lmpfr -lgmp -Wl,--rpath,/usr/local/lib64
+LDFLAGS = -L$(HOME)/Software/mpfr/lib -lmpfr -lgmp -Wl,--rpath,/opt/ohpc/pub/compiler/gcc/7.3.0/lib64
 
-INCLIST = -I$(HOME)/gmp/include
-
+#INCLIST = -I$(HOME)/gmp/include
+INCLIST = -I$(HOME)/Software/mpfr/include -I/opt/ohpc/pub/compiler/gcc/7.3.0/include
 OBJS = alg_remez.o poly4.o main.o poly4_sqrt.o
 
 CFLAGS=  -O3

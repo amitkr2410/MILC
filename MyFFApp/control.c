@@ -10,7 +10,6 @@
 #ifdef HAVE_QUDA
 #include <quda_milc_interface.h>
 #endif
-
 #ifdef HAVE_QPHIX
 #include "../include/generic_qphix.h"
 #endif
@@ -22,14 +21,38 @@
 /* For information */
 #define NULL_FP -1
 
-EXTERN gauge_header start_lat_hdr;	/* Input gauge field header */
-
+EXTERN gauge_header start_lat_hdr;	// Input gauge field header 
+#include <stdio.h>
+#include <stdlib.h>
+#include<unistd.h>
+#include <sys/stat.h>
+int is_file_exist(const char *fileName)
+{
+  if(!access(fileName, F_OK )){
+    printf("The File %s\t was Found\n",fileName); return 1;
+  }else {printf("The File %s\t was not Found\n",fileName); return 0;}
+}
+/*
+int is_file_exist(const char* filename)
+{
+  struct stat buffer;  int exist = stat(filename,&buffer);
+  if(exist == 0) return 1; //File exists
+  else return 0;  //File not exists
+}
+*/
 int main( int argc, char **argv )
 {
   int ComputePLoopFreeEnergy=1;
   int ComputeTraceFmunu =1;
-  int SaveLattice=0; int UseSavedConfiguration=0;
-  int i,MeasurementCount,traj_done, naik_index;
+  int SaveLattice=0; int UseSavedConfiguration=1;
+  char InputDataFileDIR[100000], OutputDataFileDIR[100000], SaveLatticeDataFileDIR[100000], ReadLatticeDataFileDIR[100000];
+  //sprintf(InputDataFileDIR,"%s",argv[1]);
+  if(SaveLattice==1 && UseSavedConfiguration==0 ){sprintf(SaveLatticeDataFileDIR,"%s",argv[4]); }
+  if(SaveLattice==0 && UseSavedConfiguration==1 ){sprintf(ReadLatticeDataFileDIR,"%s",argv[4]); }
+  sprintf(OutputDataFileDIR, "%s", argv[5]);
+  //sprintf(OutputDataFileDIR, "OutputTest");
+  int FolderNumber=0;
+  int i, MeasurementCount, traj_done, naik_index;
   int prompt;
   int s_iters=0, iters=0;
   double dtime, dclock();
@@ -39,24 +62,24 @@ int main( int argc, char **argv )
   double SS_Plaq=0.0, ST_Plaq=0.0;
   double Current_Plaq=0.0, Sum_Plaq=0.0, Average_Plaq=0.0;
   double TadpoleFactor=0.0, TadpoleFactorNt=0.0; 
-  complex CurrentPolyakovLoop, SumPolyakovLoop, AveragePolyakovLoop;
+  complex CurrentPolyakovLoop, SumPolyakovLoop=cmplx(0.0,0.0), AveragePolyakovLoop;
   double CurrentModPolyakovLoop=0.0, SumModPolyakovLoop=0.0, AverageModPolyakovLoop=0.0;
   double SumModPolyakovLoopTadpoleCorrected=0.0, AverageModPolyakovLoopTadpoleCorrected=0.0;
   double CurrentBareFreeEnergy=0.0,  SumBareFreeEnergy=0.0, AverageBareFreeEnergy=0.0;
   double CurrentBareFreeEnergyTadpoleCorrected=0.0,  SumBareFreeEnergyTadpoleCorrected=0.0, AverageBareFreeEnergyTadpoleCorrected=0.0;
 
-  complex CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i, AverageTraceF3iF3iMinusF4iF4i;
-  complex CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i, AverageTraceF4iF3iPlusF3iF4i;
-  
+  complex CurrentSymmetricTadpole0, SumSymmetricTadpole0=cmplx(0.0,0.0), AverageSymmetricTadpole0;
+  complex CurrentAntiSymmetricTadpole0, SumAntiSymmetricTadpole0=cmplx(0.0,0.0), AverageAntiSymmetricTadpole0;
+  complex CurrentSymmetricTadpole2, SumSymmetricTadpole2=cmplx(0.0,0.0), AverageSymmetricTadpole2;
+  complex CurrentAntiSymmetricTadpole2, SumAntiSymmetricTadpole2=cmplx(0.0,0.0), AverageAntiSymmetricTadpole2;
+  complex CurrentSymmetricTadpole4, SumSymmetricTadpole4=cmplx(0.0,0.0), AverageSymmetricTadpole4;
+  complex CurrentAntiSymmetricTadpole4, SumAntiSymmetricTadpole4=cmplx(0.0,0.0), AverageAntiSymmetricTadpole4;
+
   //Initialize variable to zero
-  CurrentPolyakovLoop=cmplx(0.0,0.0); SumPolyakovLoop=cmplx(0.0,0.0); AveragePolyakovLoop=cmplx(0.0,0.0);
-  CurrentTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); CurrentTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
-  SumTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0); AverageTraceF3iF3iMinusF4iF4i =cmplx(0.0,0.0);
-  SumTraceF4iF3iPlusF3iF4i  =cmplx(0.0,0.0); AverageTraceF4iF3iPlusF3iF4i =cmplx(0.0,0.0);
 
   //FileName to save observables
-  FILE *fploop, *ftracefmunu;
-  char FileNamePloop[10000], FileNameTraceFmunu[1000], SaveLatticeFileName[10000];
+  FILE *fploop, *ftracefmunuLO, *ftracefmunuNLO, *ftracefmunuNNLO;
+  char FileNamePloop[10000], FileNameTraceFmunu[10000], FileNameTraceFmunu2[10000], FileNameTraceFmunu3[10000], FileNameTraceFmunu4[10000], SaveLatticeFileName[100000], ReadLatticeFileName[100000], FolderName[10000];
 
   // Initialization 
   initialize_machine(&argc,&argv);
@@ -73,15 +96,26 @@ int main( int argc, char **argv )
   /* loop over input sets */
   while( readin(prompt) == 0)
     {
-      sprintf(FileNamePloop,"Output/DataPloopNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
-      sprintf(FileNameTraceFmunu,"Output/DataTraceFmunuNt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.txt", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0);
+      sprintf(FileNamePloop,"%s/DataPloopNt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);          
+      sprintf(FileNameTraceFmunu,"%s/DataTraceFmunuTadpole0_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
+      sprintf(FileNameTraceFmunu2,"%s/DataTraceFmunuTadpole2_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
+      sprintf(FileNameTraceFmunu3,"%s/DataTraceFmunuTadpole4_Clover_Traceless_Nt%d_Ns%d_Beta%.4f.txt", OutputDataFileDIR, nt, nx, beta);
+
       fploop = fopen(FileNamePloop,"w");
-      ftracefmunu = fopen(FileNameTraceFmunu,"w");
+      ftracefmunuLO  = fopen(FileNameTraceFmunu,"w");
+      ftracefmunuNLO = fopen(FileNameTraceFmunu2,"w");
+      ftracefmunuNNLO = fopen(FileNameTraceFmunu3,"w");
 
       fprintf(fploop,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
       fprintf(fploop,"#Iters \t Current_Plaq \t AvgPlaq \t TadpoleFactor \t TadpoleFactorNt \t CurrentPolyakovLoop.real \t CurrentPolyakovLoop.imag \t  CurrentModPolyakovLoop \t AverageModPolyakovLoop \t AverageModPolyakovLoopTadpoleCorrected \t  CurrentBareFreeEnergy \t AvgBareFreeEnergy  \t CurrentBareFreeEnergyTadpoleCorrected \t AvgBareFreeEnergyTadpoleCorrected \n");
-      fprintf(ftracefmunu,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
-      fprintf(ftracefmunu,"#Iters \t TraceF3iF3iMinusF4iF4i.real \t TraceF3iF3iMinusF4iF4i.imag \t AvgTraceF3iF3iMinusF4iF4i.real \t AvgTraceF3iF3iMinusF4iF4i.imag \t TraceF4iF3iPlusF3iF4i.real \t TraceF4iF3iPlusF3iF4i.imag \t AvgTraceF4iF3iPlusF3iF4i.real \t AvgTraceF4iF3iPlusF3iF4i.imag \n");
+      fprintf(ftracefmunuLO,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
+      fprintf(ftracefmunuLO,"#Iters \t SymmetricTadpole0.real \t SymmetricTadpole0.imag \t AvgSymmetricTadpole0.real \t AvgSymmetricTadpole0.imag \t AntiSymmetricTadpole0.real \t AntiSymmetricTadpole0.imag \t AvgAntiSymmetricTadpole0.real \t AvgAntiSymmetricTadpole0.imag \n");
+      fprintf(ftracefmunuNLO,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
+      fprintf(ftracefmunuNLO,"#Iters \t SymmetricTadpole2.real \t SymmetricTadpole2.imag \t AvgSymmetricTadpole2.real \t AvgSymmetricTadpole2.imag \t AntiSymmetricTadpole2.real \t AntiSymmetricTadpole2.imag \t AvgAntiSymmetricTadpole2.real \t AvgAntiSymmetricTadpole2.imag \n");
+      fprintf(ftracefmunuNNLO,"#Beta=%.4f, ml=%.6f, ms=%.6f, u0=%.3f, Nt=%d, Ns=%d^3 \n", beta, dyn_mass[0],dyn_mass[1], u0, nt, nx);
+      fprintf(ftracefmunuNNLO,"#Iters \t SymmetricTadpole4.real \t SymmetricTadpole4.imag \t AvgSymmetricTadpole4.real \t AvgSymmetricTadpole4.imag \t AntiSymmetricTadpole4.real \t AntiSymmetricTadpole4.imag \t AvgAntiSymmetricTadpole4.real \t AvgAntiSymmetricTadpole4.imag \n");
+
+
       /* perform warmup trajectories */
       #ifdef MILC_GLOBAL_DEBUG
       global_current_time_step = 0;
@@ -92,13 +126,14 @@ int main( int argc, char **argv )
       printf(" Amit MyFFApp/control.c inside while(readin(prompt)==0) \n");
       for( traj_done=0; traj_done < warms; traj_done++ )
       	{
-	  rephase(OFF);
-	  SS_Plaq=0.0; ST_Plaq=0.0;
-	  d_plaquette(&SS_Plaq, &ST_Plaq);
-	  printf("Amit MyFFApp/control.c Plaquette = (%e,%e)\n",SS_Plaq, ST_Plaq);	  
-	  rephase(ON);
-      	  update();	  
-        }      
+	  //rephase(OFF);
+	  //SS_Plaq=0.0; ST_Plaq=0.0;
+	  //d_plaquette(&SS_Plaq, &ST_Plaq);
+	  //printf("Amit MyFFApp/control.c Plaquette = (%e,%e)\n",SS_Plaq, ST_Plaq);	  
+	  //rephase(ON);
+      	  //update();	  	  
+        } 
+      iters=warms;
       node0_printf("default MyFFApp/control.c WARMUPS COMPLETED\n"); fflush(stdout);
       
       /* perform measuring trajectories, reunitarizing and measuring 	*/
@@ -136,7 +171,9 @@ int main( int argc, char **argv )
 	      SumPolyakovLoop = cmplx(0.0,0.0);
 	      SumModPolyakovLoop=0.0; SumModPolyakovLoopTadpoleCorrected=0.0;
 	      SumBareFreeEnergy=0.0;  SumBareFreeEnergyTadpoleCorrected=0.0;
-	      SumTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  SumTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
+	      SumSymmetricTadpole0 = cmplx(0.0,0.0);  SumAntiSymmetricTadpole0 = cmplx(0.0,0.0);
+	      SumSymmetricTadpole2 = cmplx(0.0,0.0);  SumAntiSymmetricTadpole2 = cmplx(0.0,0.0);
+	      SumSymmetricTadpole4 = cmplx(0.0,0.0);  SumAntiSymmetricTadpole4 = cmplx(0.0,0.0);
 	    }
 	  /* call gauge_variable  measuring routines */
 	  /* Compute plaquette, Polyakov loop, bare free energy and display/save in screen/file */
@@ -174,28 +211,58 @@ int main( int argc, char **argv )
 	      SumBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected + CurrentBareFreeEnergyTadpoleCorrected;
 	      AverageBareFreeEnergyTadpoleCorrected = SumBareFreeEnergyTadpoleCorrected/MeasurementCount;
 	      printf("Amit MyFFApp/control.c PLoop=(%e,%e), AvgPLoop=(%e,%e), and (CurrentModPLOOP,AvgModPLOOP)=(%e,%e), and (CurrentBareFreeEnergy, AverageBareFreeEnergy)=(%e,%e), and (CurrenttBareFreeEnergyTadpoleCorr, AverageBareFreeEnergyTadpoleCorr)=(%e,%e)\n", CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, AveragePolyakovLoop.real, AveragePolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoopTadpoleCorrected, CurrentBareFreeEnergy, AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
-	      /* write Plaquette, PLoop, Free Energy into a file */	      
+	      // write Plaquette, PLoop, Free Energy into a file 	      
 	      fprintf(fploop,"%d \t %e \t %.4f  \t %.4f \t %.4f \t %.4f \t %.4f \t %e \t %.4f \t %.4f \t %e  \t %.4f  \t %e \t %.4f \n", iters, Current_Plaq,  Average_Plaq, TadpoleFactor, TadpoleFactorNt, CurrentPolyakovLoop.real, CurrentPolyakovLoop.imag, CurrentModPolyakovLoop, AverageModPolyakovLoop, AverageModPolyakovLoop,   CurrentBareFreeEnergy,  AverageBareFreeEnergy, CurrentBareFreeEnergyTadpoleCorrected, AverageBareFreeEnergyTadpoleCorrected);
 	    } //end of ComputePLoopFreeEnergy if-condition
 	  
 	  if(ComputeTraceFmunu==1)
 	    {
-	      CurrentTraceF3iF3iMinusF4iF4i = cmplx(0.0,0.0);  CurrentTraceF4iF3iPlusF3iF4i = cmplx(0.0,0.0);
-              fmunu_fmunu(&CurrentTraceF3iF3iMinusF4iF4i, &CurrentTraceF4iF3iPlusF3iF4i);
-              CADD(SumTraceF3iF3iMinusF4iF4i, CurrentTraceF3iF3iMinusF4iF4i, SumTraceF3iF3iMinusF4iF4i);
-              CADD(SumTraceF4iF3iPlusF3iF4i, CurrentTraceF4iF3iPlusF3iF4i, SumTraceF4iF3iPlusF3iF4i);
-              CDIVREAL(SumTraceF3iF3iMinusF4iF4i, MeasurementCount, AverageTraceF3iF3iMinusF4iF4i);
-              CDIVREAL(SumTraceF4iF3iPlusF3iF4i, MeasurementCount, AverageTraceF4iF3iPlusF3iF4i);
-              printf("Amit MyFFApp/control.c TraceF3iF3iMinusF4iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag);
-              printf("Amit MyFFApp/control.c TraceF4iF3iPlusF3iF4i=(%e,%e), AvgTrace=(%e,%e) \n",CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag);
-	      fprintf(ftracefmunu,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentTraceF3iF3iMinusF4iF4i.real, CurrentTraceF3iF3iMinusF4iF4i.imag, AverageTraceF3iF3iMinusF4iF4i.real, AverageTraceF3iF3iMinusF4iF4i.imag, CurrentTraceF4iF3iPlusF3iF4i.real, CurrentTraceF4iF3iPlusF3iF4i.imag, AverageTraceF4iF3iPlusF3iF4i.real, AverageTraceF4iF3iPlusF3iF4i.imag );
-	    } /* end of if-condition for trace of fmunu correlators */
-	  
+	      CurrentSymmetricTadpole0 = cmplx(0.0,0.0);  CurrentAntiSymmetricTadpole0 = cmplx(0.0,0.0);
+	      CurrentSymmetricTadpole2 = cmplx(0.0,0.0);  CurrentAntiSymmetricTadpole2 = cmplx(0.0,0.0);
+	      CurrentSymmetricTadpole4 = cmplx(0.0,0.0);  CurrentAntiSymmetricTadpole4 = cmplx(0.0,0.0);
+
+              fmunu_fmunu(&CurrentSymmetricTadpole0, &CurrentSymmetricTadpole2, &CurrentSymmetricTadpole4, &CurrentAntiSymmetricTadpole0, &CurrentAntiSymmetricTadpole2, &CurrentAntiSymmetricTadpole4);
+
+              CADD(SumSymmetricTadpole0, CurrentSymmetricTadpole0, SumSymmetricTadpole0);
+	      CADD(SumSymmetricTadpole2, CurrentSymmetricTadpole2, SumSymmetricTadpole2);
+	      CADD(SumSymmetricTadpole4, CurrentSymmetricTadpole4, SumSymmetricTadpole4);
+	      CADD(SumAntiSymmetricTadpole0, CurrentAntiSymmetricTadpole0, SumAntiSymmetricTadpole0);
+	      CADD(SumAntiSymmetricTadpole2, CurrentAntiSymmetricTadpole2, SumAntiSymmetricTadpole2);
+	      CADD(SumAntiSymmetricTadpole4, CurrentAntiSymmetricTadpole4, SumAntiSymmetricTadpole4);
+
+              CDIVREAL(SumSymmetricTadpole0,     MeasurementCount, AverageSymmetricTadpole0);
+	      CDIVREAL(SumSymmetricTadpole2,     MeasurementCount, AverageSymmetricTadpole2);
+	      CDIVREAL(SumSymmetricTadpole4,     MeasurementCount, AverageSymmetricTadpole4);
+	      CDIVREAL(SumAntiSymmetricTadpole0,     MeasurementCount, AverageAntiSymmetricTadpole0);
+	      CDIVREAL(SumAntiSymmetricTadpole2,     MeasurementCount, AverageAntiSymmetricTadpole2);
+	      CDIVREAL(SumAntiSymmetricTadpole4,     MeasurementCount, AverageAntiSymmetricTadpole4);
+
+
+              printf("Amit MyFFApp/control.c TraceF3iF3iMinusF4iF4i=(%e,%e), AvgTrace=(%e,%e) \n", CurrentSymmetricTadpole0.real, CurrentSymmetricTadpole0.imag, AverageSymmetricTadpole0.real, AverageSymmetricTadpole0.imag);
+              printf("Amit MyFFApp/control.c TraceF4iF3iPlusF3iF4i=(%e,%e), AvgTrace=(%e,%e) \n", CurrentAntiSymmetricTadpole0.real, CurrentAntiSymmetricTadpole0.imag, AverageAntiSymmetricTadpole0.real, AverageAntiSymmetricTadpole0.imag);
+
+	      printf("Amit MyFFApp/control.c TraceSymmetricTadpole2=(%e,%e), AvgTrace=(%e,%e) \n", CurrentSymmetricTadpole2.real, CurrentSymmetricTadpole2.imag, AverageSymmetricTadpole2.real, AverageSymmetricTadpole2.imag);
+              printf("Amit MyFFApp/control.c TraceAntiSymmetricTadpole2=(%e,%e), AvgTrace=(%e,%e) \n", CurrentAntiSymmetricTadpole2.real, CurrentAntiSymmetricTadpole2.imag, AverageAntiSymmetricTadpole2.real, AverageAntiSymmetricTadpole2.imag);
+
+	      printf("Amit MyFFApp/control.c TraceSymmetricTadpole4=(%e,%e), AvgTrace=(%e,%e) \n", CurrentSymmetricTadpole4.real, CurrentSymmetricTadpole4.imag, AverageSymmetricTadpole4.real, AverageSymmetricTadpole4.imag);
+              printf("Amit MyFFApp/control.c TraceAntiSymmetricTadpole4=(%e,%e), AvgTrace=(%e,%e) \n", CurrentAntiSymmetricTadpole4.real, CurrentAntiSymmetricTadpole4.imag, AverageAntiSymmetricTadpole4.real, AverageAntiSymmetricTadpole4.imag);
+
+	      fprintf(ftracefmunuLO,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentSymmetricTadpole0.real, CurrentSymmetricTadpole0.imag, AverageSymmetricTadpole0.real, AverageSymmetricTadpole0.imag, CurrentAntiSymmetricTadpole0.real, CurrentAntiSymmetricTadpole0.imag, AverageAntiSymmetricTadpole0.real, AverageAntiSymmetricTadpole0.imag );
+	      fprintf(ftracefmunuNLO,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentSymmetricTadpole2.real, CurrentSymmetricTadpole2.imag, AverageSymmetricTadpole2.real, AverageSymmetricTadpole2.imag, CurrentAntiSymmetricTadpole2.real, CurrentAntiSymmetricTadpole2.imag, AverageAntiSymmetricTadpole2.real, AverageAntiSymmetricTadpole2.imag );
+	      fprintf(ftracefmunuNNLO,"%d \t %e \t %e \t %e \t %e \t %e \t %e \t %e \t %e \n", iters, CurrentSymmetricTadpole4.real, CurrentSymmetricTadpole4.imag, AverageSymmetricTadpole4.real, AverageSymmetricTadpole4.imag, CurrentAntiSymmetricTadpole4.real, CurrentAntiSymmetricTadpole4.imag, AverageAntiSymmetricTadpole4.real, AverageAntiSymmetricTadpole4.imag );	      
+	    }
+	
+
+	  int FolderNumberIndex = (iters-1)/1000;
+	  FolderNumber = 1000*(1 + FolderNumberIndex);
 
 	  if( SaveLattice==1  )
-	    {
+	    { sprintf(FolderName,"mkdir %s/Nt%d_Ns%d/Beta%.4f_%d",SaveLatticeDataFileDIR, nt, nx, beta, FolderNumber);
+	      if((FolderNumber-1000+1)==iters  && this_node==1)
+                {system(FolderName);
+                }
 	      int flag=SAVE_SERIAL;
-	      sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
+	      sprintf(SaveLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d",SaveLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
 	      save_lattice( flag, SaveLatticeFileName, stringLFN );
 	      //rephase( OFF );
 	      // save_lattice( saveflag, savefile, stringLFN );
@@ -206,33 +273,43 @@ int main( int argc, char **argv )
 	    {
 	      if(UseSavedConfiguration==0)
 		{ rephase(ON);
-		  printf(" Amit MyFFApp/control.c s_iters=update() called for beta= %.4f, u0=%.4f, at iters = %d \n",beta, u0, iters);
+		  printf(" Amit MyFFApp/control.c s_iters=update() called for beta= %.4f, u0=%.4f, at iters = %d, and FolderNumber=%d \n",beta, u0, iters, FolderNumber);
 		  s_iters=update();
 		}
 	      else 
-		{int flag=RELOAD_SERIAL;
-		  sprintf(SaveLatticeFileName,"/wsu/home/fy/fy41/fy4125/Lattice/GaugeConfigurationTest/Lattice_Nt%d_Ns%d_Beta%.4f_ml%.6f_ms%.6f_u0_%.3f.configuration.%d", nt, nx, beta, dyn_mass[0], dyn_mass[1], u0, iters);
-		  reload_lattice( flag, SaveLatticeFileName);
+		{ int flag=RELOAD_SERIAL;		  
+		  sprintf(ReadLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", ReadLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
+		  if(is_file_exist(ReadLatticeFileName)==0) 
+		    {
+		      while(is_file_exist(ReadLatticeFileName)==0 && traj_done < trajecs - 1)
+			{
+			  iters++; traj_done++;
+			  FolderNumberIndex = (iters-1)/1000;
+			  FolderNumber = 1000*(1 + FolderNumberIndex);
+			  sprintf(ReadLatticeFileName,"%s/Nt%d_Ns%d/Beta%.4f_%d/Lattice_Nt%d_Ns%d_Beta%.4f_u0_%.3f.configuration.%d", ReadLatticeDataFileDIR, nt, nx, beta, FolderNumber, nt, nx, beta, u0, iters);
+			}
+		    }
+		   reload_lattice( flag, ReadLatticeFileName);
 		}
 	    }
-	}/* end loop over trajectories */
+	}// end loop over trajectories 
       
 
       printf("default MyFFApp/control.c RUNNING COMPLETED, This node is %d \n",this_node); 
-      fflush(stdout);	     
-      dtime += dclock();	     
+      fflush(stdout);     
+      dtime += dclock(); 
       printf("Default MyFFApp/control.c Time = %e seconds \n",dtime);
       printf("Default MyFFApp/control.c total_iters = %d \n",iters);      
       fflush(stdout);
       
-      /* save lattice if requested */
+      // save lattice if requested 
       if( saveflag != FORGET )
 	{ rephase( OFF );
 	  save_lattice( saveflag, savefile, stringLFN );
 	  rephase( ON );
 	}      
 
-      /* Destroy fermion links (created in readin() */      
+      // Destroy fermion links (created in readin() 
 #if FERM_ACTION == HISQ
       destroy_fermion_links_hisq(fn_links);
 #elif FERM_ACTION == HYPISQ
@@ -244,7 +321,9 @@ int main( int argc, char **argv )
     }
   
   fclose(fploop);
-  fclose(ftracefmunu);
+  fclose(ftracefmunuLO);
+  fclose(ftracefmunuNLO);
+  fclose(ftracefmunuNNLO);
   normal_exit(0);
   return 0;
 }

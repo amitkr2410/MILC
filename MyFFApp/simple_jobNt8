@@ -1,0 +1,35 @@
+#!/bin/bash
+
+File=(  
+inputNt8_Ns32_Beta6.2850_ml0.003950_ms0.079000_u0_1.000.txt 
+inputNt8_Ns32_Beta6.5150_ml0.003020_ms0.060400_u0_1.000.txt 
+inputNt8_Ns32_Beta6.5750_ml0.002820_ms0.056400_u0_1.000.txt 
+inputNt8_Ns32_Beta6.6640_ml0.002570_ms0.051400_u0_1.000.txt 
+inputNt8_Ns32_Beta6.9500_ml0.001930_ms0.038600_u0_1.000.txt 
+inputNt8_Ns32_Beta7.2800_ml0.001420_ms0.028400_u0_1.000.txt 
+inputNt8_Ns32_Beta7.5000_ml0.001110_ms0.022200_u0_1.000.txt 
+inputNt8_Ns32_Beta7.5960_ml0.001010_ms0.020200_u0_1.000.txt 
+inputNt8_Ns32_Beta7.8250_ml0.000820_ms0.016400_u0_1.000.txt 
+inputNt8_Ns32_Beta8.2000_ml0.000584_ms0.011670_u0_1.000.txt 
+ )
+#File=()
+
+
+MyDIR=/wsu/home/fy/fy41/fy4125/Lattice/MILC/MyFFAppNt32Ns32
+a=$1
+
+echo "This is Beta = ("  ${File[$a]} 
+
+INPUT=${MyDIR}/Nt8Input/${File[$a]}
+echo "Input file used is at "  ${INPUT}
+TimeOutput=${MyDIR}/OutputNt8/TimeFor${File[$a]}
+cd ${MyDIR}
+
+echo "${INPUT}" >> ${TimeOutput}
+echo "JOB INFO: Queue=" $PBS_O_QUEUE ",  NodeName="$HOSTNAME   ",  JobName="$PBS_JOBNAME  ",  JobID="$PBS_JOBID >> ${TimeOutput}
+echo "mpirun -np 16 ./su3_rhmc_hisq  ${INPUT}  dev/null /dev/null   /wsu/tmp/AmitConfiguration OutputNt8" >> ${TimeOutput}
+echo $(date) >> ${TimeOutput}
+
+mpirun -np 16 ./su3_rhmc_hisq  ${INPUT} /dev/null /dev/null   /wsu/tmp/AmitConfiguration  OutputNt8
+
+echo $(date) >>  ${TimeOutput}

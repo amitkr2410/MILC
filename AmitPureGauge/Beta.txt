@@ -1,0 +1,11 @@
+#Beta
+5.81 
+
+5.83 
+
+6.27 
+
+6.34
+
+
+reload_serial  GaugeConfiguration/Lattice_Nt4_Ns16_Beta6.3400_Execsu3_ora.6p34.sample-in.configuration.1000
