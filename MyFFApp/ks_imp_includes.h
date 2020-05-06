@@ -116,6 +116,7 @@ double hmom_action(void);
 void stout_step_rk();
 void staple();
 //void fmunu_fmunu(double *time, double *space, double *charge);
-void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i, complex *TraceF3iDzF3iMinusF4iDzF4i, complex *TraceF4iDzF3iPlusF3iDzF4i,complex *TraceF3iD2zF3iMinusF4iD2zF4i, complex *TraceF4iD2zF3iPlusF3iD2zF4i, complex *TraceF3iD4zF3iMinusF4iD4zF4i, complex *TraceF4iD4zF3iPlusF3iD4zF4i);
+//void fmunu_fmunu(complex *TraceF3iF3iMinusF4iF4i, complex *TraceF4iF3iPlusF3iF4i, complex *TraceF3iDzF3iMinusF4iDzF4i, complex *TraceF4iDzF3iPlusF3iDzF4i,complex *TraceF3iD2zF3iMinusF4iD2zF4i, complex *TraceF4iD2zF3iPlusF3iD2zF4i, complex *TraceF3iD4zF3iMinusF4iD4zF4i, complex *TraceF4iD4zF3iPlusF3iD4zF4i);
+void fmunu_fmunu(complex *SymmetricTadpole0, complex *SymmetricTadpole2, complex *SymmetricTadpole4, complex *AntiSymmetricTadpole0, complex *AntiSymmetricTadpole2, complex *AntiSymmetricTadpole4);
 #endif /* KS_IMP_INCLUDES_H_ */
 
