@@ -23,3 +23,4 @@
 int  setup();
 int readin(int prompt);
 
+void fmunu_fmunu(complex *SymmetricTadpole0, complex *SymmetricTadpole2, complex *SymmetricTadpole4, complex *AntiSymmetricTadpole0, complex *AntiSymmetricTadpole2, complex *AntiSymmetricTadpole4);

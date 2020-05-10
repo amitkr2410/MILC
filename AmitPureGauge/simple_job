@@ -3,7 +3,7 @@ Nt=$1
 Ns=$2
 BetaIndex=$3
 ncpus=$4
-MyDIR=/wsu/home/fy/fy41/fy4125//AmitPureGauge
+MyDIR=/wsu/home/fy/fy41/fy4125/Measurement/PureGaugeColverTraceless/AmitPureGauge
 cd ${MyDIR}
 
 BetaNameNs16=(
@@ -55,7 +55,7 @@ TimeOutput=${MyDIR}/OutputNt${Nt}/TimeFor${File}
 
 echo "${INPUT}" >> ${TimeOutput}
 echo "JOB INFO: Queue=" $PBS_O_QUEUE ",  NodeName="$HOSTNAME   ",  JobName="$PBS_JOBNAME  ",  JobID="$PBS_JOBID >> ${TimeOutput}
-echo "mpirun -np ${ncpus} ./su3_ora  ${INPUT} /dev/null /dev/null  /wsu/tmp/AmitPureGauge  OutputNt${Nt}" >> ${TimeOutput}
+echo "mpirun -np ${ncpus} ./su3_ora  ${INPUT} /dev/null /dev/null  /wsu/tmp/AmitPureGauge   OutputNt${Nt}" >> ${TimeOutput}
 echo $(date) >> ${TimeOutput}
 
 mpirun -np ${ncpus} ./su3_ora ${INPUT} /dev/null /dev/null  /wsu/tmp/AmitPureGauge   OutputNt${Nt}  > /dev/null
