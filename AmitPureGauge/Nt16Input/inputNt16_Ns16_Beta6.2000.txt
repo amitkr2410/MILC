@@ -1,13 +1,13 @@
 prompt 0
-nx 32
-ny 32
-nz 32
-nt 8
+nx 16
+ny 16
+nz 16
+nt 16
 iseed 86658
 warms 0
-trajecs 10000
+trajecs 5000
 traj_between_meas 1
-beta 6.55
+beta 6.2
 steps_per_trajectory 10
 qhb_steps 4
 fresh
